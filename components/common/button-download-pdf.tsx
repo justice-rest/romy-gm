@@ -25,208 +25,178 @@ export function ButtonDownloadPdf({ markdown }: ButtonDownloadPdfProps) {
         gfm: true,
       })
 
-      // Create a container with Perplexity-like styling
-      const container = document.createElement("div")
-      container.style.position = "absolute"
-      container.style.left = "-9999px"
-      container.style.top = "0"
-      container.style.width = "800px"
-      container.style.padding = "60px"
-      container.style.backgroundColor = "#ffffff"
-      container.style.fontFamily =
-        "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+      // Create an isolated iframe for rendering
+      const iframe = document.createElement("iframe")
+      iframe.style.position = "absolute"
+      iframe.style.left = "-9999px"
+      iframe.style.top = "0"
+      iframe.style.width = "920px"
+      iframe.style.height = "1000px"
+      document.body.appendChild(iframe)
 
-      // Add branding header
-      const header = document.createElement("div")
-      header.style.marginBottom = "40px"
-      header.innerHTML = `
-        <div style="font-size: 24px; font-weight: 700; color: #1a1a1a; margin-bottom: 24px;">
-          Rōmy
-        </div>
-      `
-
-      // Style the markdown content
-      const content = document.createElement("div")
-      content.innerHTML = html
-      content.style.color = "#1a1a1a"
-      content.style.fontSize = "14px"
-      content.style.lineHeight = "1.7"
-
-      // Apply styles to elements
-      const styleElements = () => {
-        // Headings
-        content.querySelectorAll("h1").forEach((el) => {
-          ;(el as HTMLElement).style.fontSize = "26px"
-          ;(el as HTMLElement).style.fontWeight = "700"
-          ;(el as HTMLElement).style.marginTop = "32px"
-          ;(el as HTMLElement).style.marginBottom = "16px"
-          ;(el as HTMLElement).style.color = "#1a1a1a"
-          ;(el as HTMLElement).style.lineHeight = "1.3"
-        })
-
-        content.querySelectorAll("h2").forEach((el) => {
-          ;(el as HTMLElement).style.fontSize = "20px"
-          ;(el as HTMLElement).style.fontWeight = "700"
-          ;(el as HTMLElement).style.marginTop = "28px"
-          ;(el as HTMLElement).style.marginBottom = "12px"
-          ;(el as HTMLElement).style.color = "#1a1a1a"
-          ;(el as HTMLElement).style.lineHeight = "1.4"
-        })
-
-        content.querySelectorAll("h3").forEach((el) => {
-          ;(el as HTMLElement).style.fontSize = "17px"
-          ;(el as HTMLElement).style.fontWeight = "600"
-          ;(el as HTMLElement).style.marginTop = "24px"
-          ;(el as HTMLElement).style.marginBottom = "10px"
-          ;(el as HTMLElement).style.color = "#1a1a1a"
-        })
-
-        // Paragraphs
-        content.querySelectorAll("p").forEach((el) => {
-          ;(el as HTMLElement).style.marginBottom = "16px"
-          ;(el as HTMLElement).style.color = "#1a1a1a"
-          ;(el as HTMLElement).style.lineHeight = "1.7"
-        })
-
-        // Lists
-        content.querySelectorAll("ul, ol").forEach((el) => {
-          ;(el as HTMLElement).style.marginBottom = "16px"
-          ;(el as HTMLElement).style.marginLeft = "24px"
-        })
-
-        content.querySelectorAll("li").forEach((el) => {
-          ;(el as HTMLElement).style.marginBottom = "8px"
-          ;(el as HTMLElement).style.color = "#1a1a1a"
-          ;(el as HTMLElement).style.lineHeight = "1.7"
-        })
-
-        // Code blocks
-        content.querySelectorAll("pre").forEach((el) => {
-          ;(el as HTMLElement).style.backgroundColor = "#f5f5f5"
-          ;(el as HTMLElement).style.padding = "16px"
-          ;(el as HTMLElement).style.borderRadius = "6px"
-          ;(el as HTMLElement).style.marginBottom = "16px"
-          ;(el as HTMLElement).style.overflowX = "auto"
-          ;(el as HTMLElement).style.fontSize = "13px"
-          ;(el as HTMLElement).style.fontFamily =
-            "'SF Mono', 'Monaco', 'Consolas', monospace"
-        })
-
-        content.querySelectorAll("code").forEach((el) => {
-          if ((el.parentElement as HTMLElement)?.tagName !== "PRE") {
-            ;(el as HTMLElement).style.backgroundColor = "#f5f5f5"
-            ;(el as HTMLElement).style.padding = "2px 6px"
-            ;(el as HTMLElement).style.borderRadius = "3px"
-            ;(el as HTMLElement).style.fontSize = "13px"
-            ;(el as HTMLElement).style.fontFamily =
-              "'SF Mono', 'Monaco', 'Consolas', monospace"
-            ;(el as HTMLElement).style.color = "#d63384"
-          }
-        })
-
-        // Blockquotes
-        content.querySelectorAll("blockquote").forEach((el) => {
-          ;(el as HTMLElement).style.borderLeft = "4px solid #e5e5e5"
-          ;(el as HTMLElement).style.paddingLeft = "16px"
-          ;(el as HTMLElement).style.marginLeft = "0"
-          ;(el as HTMLElement).style.marginBottom = "16px"
-          ;(el as HTMLElement).style.color = "#666"
-          ;(el as HTMLElement).style.fontStyle = "italic"
-        })
-
-        // Tables
-        content.querySelectorAll("table").forEach((el) => {
-          ;(el as HTMLElement).style.borderCollapse = "collapse"
-          ;(el as HTMLElement).style.width = "100%"
-          ;(el as HTMLElement).style.marginBottom = "16px"
-        })
-
-        content.querySelectorAll("th, td").forEach((el) => {
-          ;(el as HTMLElement).style.border = "1px solid #e5e5e5"
-          ;(el as HTMLElement).style.padding = "10px 12px"
-          ;(el as HTMLElement).style.textAlign = "left"
-        })
-
-        content.querySelectorAll("th").forEach((el) => {
-          ;(el as HTMLElement).style.backgroundColor = "#f9f9f9"
-          ;(el as HTMLElement).style.fontWeight = "600"
-        })
-
-        // Strong/Bold
-        content.querySelectorAll("strong").forEach((el) => {
-          ;(el as HTMLElement).style.fontWeight = "600"
-        })
-
-        // Links
-        content.querySelectorAll("a").forEach((el) => {
-          ;(el as HTMLElement).style.color = "#2563eb"
-          ;(el as HTMLElement).style.textDecoration = "none"
-        })
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document
+      if (!iframeDoc) {
+        throw new Error("Could not access iframe document")
       }
 
-      styleElements()
-
-      container.appendChild(header)
-      container.appendChild(content)
-      document.body.appendChild(container)
-
-      // Wait for fonts and styles to load
-      await new Promise((resolve) => setTimeout(resolve, 100))
-
-      // Convert all oklch colors to standard RGB format
-      const convertOklchColors = (element: HTMLElement) => {
-        const allElements = element.querySelectorAll("*")
-        allElements.forEach((el) => {
-          const htmlEl = el as HTMLElement
-          const computedStyle = window.getComputedStyle(htmlEl)
-
-          // Convert color properties
-          const colorProps = [
-            "color",
-            "backgroundColor",
-            "borderColor",
-            "borderTopColor",
-            "borderRightColor",
-            "borderBottomColor",
-            "borderLeftColor",
-          ]
-
-          colorProps.forEach((prop) => {
-            const value = computedStyle.getPropertyValue(prop)
-            if (value && value.includes("oklch")) {
-              // Force browser to compute the color
-              const tempDiv = document.createElement("div")
-              tempDiv.style.color = value
-              document.body.appendChild(tempDiv)
-              const computed = window.getComputedStyle(tempDiv).color
-              document.body.removeChild(tempDiv)
-              htmlEl.style.setProperty(prop, computed)
+      // Write complete HTML with inline styles to avoid any CSS inheritance
+      iframeDoc.open()
+      iframeDoc.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
             }
-          })
-        })
-      }
+            body {
+              background: #ffffff;
+              color: #1a1a1a;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+              padding: 60px;
+              width: 800px;
+            }
+            .header {
+              font-size: 24px;
+              font-weight: 700;
+              color: #1a1a1a;
+              margin-bottom: 40px;
+            }
+            .content {
+              color: #1a1a1a;
+              font-size: 14px;
+              line-height: 1.7;
+            }
+            .content h1 {
+              font-size: 26px;
+              font-weight: 700;
+              margin-top: 32px;
+              margin-bottom: 16px;
+              color: #1a1a1a;
+              line-height: 1.3;
+            }
+            .content h2 {
+              font-size: 20px;
+              font-weight: 700;
+              margin-top: 28px;
+              margin-bottom: 12px;
+              color: #1a1a1a;
+              line-height: 1.4;
+            }
+            .content h3 {
+              font-size: 17px;
+              font-weight: 600;
+              margin-top: 24px;
+              margin-bottom: 10px;
+              color: #1a1a1a;
+            }
+            .content h4, .content h5, .content h6 {
+              font-weight: 600;
+              margin-top: 20px;
+              margin-bottom: 8px;
+              color: #1a1a1a;
+            }
+            .content p {
+              margin-bottom: 16px;
+              color: #1a1a1a;
+              line-height: 1.7;
+            }
+            .content ul, .content ol {
+              margin-bottom: 16px;
+              margin-left: 24px;
+            }
+            .content li {
+              margin-bottom: 8px;
+              color: #1a1a1a;
+              line-height: 1.7;
+            }
+            .content pre {
+              background-color: #f5f5f5;
+              padding: 16px;
+              border-radius: 6px;
+              margin-bottom: 16px;
+              overflow-x: auto;
+              font-size: 13px;
+              font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            }
+            .content code {
+              background-color: #f5f5f5;
+              padding: 2px 6px;
+              border-radius: 3px;
+              font-size: 13px;
+              font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+              color: #d63384;
+            }
+            .content pre code {
+              background-color: transparent;
+              padding: 0;
+              color: #1a1a1a;
+            }
+            .content blockquote {
+              border-left: 4px solid #e5e5e5;
+              padding-left: 16px;
+              margin-left: 0;
+              margin-bottom: 16px;
+              color: #666666;
+              font-style: italic;
+            }
+            .content table {
+              border-collapse: collapse;
+              width: 100%;
+              margin-bottom: 16px;
+            }
+            .content th, .content td {
+              border: 1px solid #e5e5e5;
+              padding: 10px 12px;
+              text-align: left;
+            }
+            .content th {
+              background-color: #f9f9f9;
+              font-weight: 600;
+            }
+            .content strong, .content b {
+              font-weight: 600;
+            }
+            .content a {
+              color: #2563eb;
+              text-decoration: none;
+            }
+            .content em, .content i {
+              font-style: italic;
+            }
+            .content hr {
+              border: none;
+              border-top: 1px solid #e5e5e5;
+              margin: 24px 0;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">Rōmy</div>
+          <div class="content">${html}</div>
+        </body>
+        </html>
+      `)
+      iframeDoc.close()
 
-      convertOklchColors(container)
+      // Wait for iframe to render
+      await new Promise((resolve) => setTimeout(resolve, 300))
 
-      // Use html2canvas to render the styled HTML
+      const container = iframeDoc.body
+
+      // Use html2canvas to render the iframe content
       const canvas = await html2canvas(container, {
         scale: 2, // Higher quality
         useCORS: true,
         logging: false,
         backgroundColor: "#ffffff",
-        onclone: (clonedDoc) => {
-          // Additional cleanup in cloned document
-          const clonedContainer = clonedDoc.body.querySelector(
-            "div"
-          ) as HTMLElement
-          if (clonedContainer) {
-            convertOklchColors(clonedContainer)
-          }
-        },
       })
 
-      // Clean up
-      document.body.removeChild(container)
+      // Clean up iframe
+      document.body.removeChild(iframe)
 
       // Create PDF
       const pdf = new jsPDF({
