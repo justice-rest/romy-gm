@@ -19,6 +19,7 @@ import { ConnectionsPlaceholder } from "./connections/connections-placeholder"
 import { DeveloperTools } from "./connections/developer-tools"
 import { OllamaSection } from "./connections/ollama-section"
 import { AccountManagement } from "./general/account-management"
+import { OnboardingDataSection } from "./general/onboarding-data"
 import { UserProfile } from "./general/user-profile"
 
 type SettingsContentProps = {
@@ -92,6 +93,7 @@ export function SettingsContent({
               <UserProfile />
               {isSupabaseEnabled && (
                 <>
+                  <OnboardingDataSection />
                   <AccountManagement />
                 </>
               )}
@@ -152,6 +154,7 @@ export function SettingsContent({
                 <UserProfile />
                 {isSupabaseEnabled && (
                   <>
+                    <OnboardingDataSection />
                     <AccountManagement />
                   </>
                 )}

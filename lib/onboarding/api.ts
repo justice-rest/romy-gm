@@ -93,6 +93,10 @@ export function formatOnboardingContextForLLM(
     parts.push(`Their goal with Rōmy: ${data.purpose}`)
   }
 
+  if (data.additional_context) {
+    parts.push(`Additional context: ${data.additional_context}`)
+  }
+
   if (parts.length === 0) {
     return ""
   }

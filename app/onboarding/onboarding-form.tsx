@@ -79,6 +79,7 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
     fundraising_primary: null,
     prior_tools: null,
     purpose: null,
+    additional_context: null,
   })
 
   const progress = (currentStep / TOTAL_QUESTIONS) * 100
