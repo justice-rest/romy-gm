@@ -52,6 +52,7 @@
     "jspdf": "^3.0.3",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.503.0",
+    "markdown-pdf": "^11.0.0",
     "marked": "^15.0.12",
     "motion": "^12.6.3",
     "next": "^15.4.0-canary.47",
