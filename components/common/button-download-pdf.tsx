@@ -173,12 +173,56 @@ export function ButtonDownloadPdf({ markdown }: ButtonDownloadPdfProps) {
       // Wait for fonts and styles to load
       await new Promise((resolve) => setTimeout(resolve, 100))
 
+      // Convert all oklch colors to standard RGB format
+      const convertOklchColors = (element: HTMLElement) => {
+        const allElements = element.querySelectorAll("*")
+        allElements.forEach((el) => {
+          const htmlEl = el as HTMLElement
+          const computedStyle = window.getComputedStyle(htmlEl)
+
+          // Convert color properties
+          const colorProps = [
+            "color",
+            "backgroundColor",
+            "borderColor",
+            "borderTopColor",
+            "borderRightColor",
+            "borderBottomColor",
+            "borderLeftColor",
+          ]
+
+          colorProps.forEach((prop) => {
+            const value = computedStyle.getPropertyValue(prop)
+            if (value && value.includes("oklch")) {
+              // Force browser to compute the color
+              const tempDiv = document.createElement("div")
+              tempDiv.style.color = value
+              document.body.appendChild(tempDiv)
+              const computed = window.getComputedStyle(tempDiv).color
+              document.body.removeChild(tempDiv)
+              htmlEl.style.setProperty(prop, computed)
+            }
+          })
+        })
+      }
+
+      convertOklchColors(container)
+
       // Use html2canvas to render the styled HTML
       const canvas = await html2canvas(container, {
         scale: 2, // Higher quality
         useCORS: true,
         logging: false,
         backgroundColor: "#ffffff",
+        onclone: (clonedDoc) => {
+          // Additional cleanup in cloned document
+          const clonedContainer = clonedDoc.body.querySelector(
+            "div"
+          ) as HTMLElement
+          if (clonedContainer) {
+            convertOklchColors(clonedContainer)
+          }
+        },
       })
 
       // Clean up
