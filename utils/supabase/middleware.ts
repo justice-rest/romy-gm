@@ -57,6 +57,32 @@ export async function updateSession(request: NextRequest) {
   //   return NextResponse.redirect(url);
   // }
 
+  // Redirect authenticated users to onboarding if they haven't completed it
+  if (user && !request.nextUrl.pathname.startsWith("/onboarding")) {
+    // Skip onboarding check for auth, API, and static routes
+    const isAuthRoute = request.nextUrl.pathname.startsWith("/auth")
+    const isApiRoute = request.nextUrl.pathname.startsWith("/api")
+    const isStaticRoute =
+      request.nextUrl.pathname.startsWith("/_next") ||
+      request.nextUrl.pathname.includes(".")
+
+    if (!isAuthRoute && !isApiRoute && !isStaticRoute) {
+      const { data: userData } = await supabase
+        .from("users")
+        .select("onboarding_completed")
+        .eq("id", user.id)
+        .single()
+
+      if (userData && !userData.onboarding_completed) {
+        const url = request.nextUrl.clone()
+        url.pathname = "/onboarding"
+        const redirectResponse = NextResponse.redirect(url)
+        redirectResponse.cookies.setAll(supabaseResponse.cookies.getAll())
+        return redirectResponse
+      }
+    }
+  }
+
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
   // If you're creating a new response object with NextResponse.next() make sure to:
   // 1. Pass the request in it, like so:

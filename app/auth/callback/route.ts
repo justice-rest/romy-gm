@@ -46,6 +46,8 @@ export async function GET(request: Request) {
     )
   }
 
+  let isNewUser = false
+
   try {
     // Try to insert user only if not exists
     const { error: insertError } = await supabaseAdmin.from("users").insert({
@@ -55,19 +57,37 @@ export async function GET(request: Request) {
       message_count: 0,
       premium: false,
       favorite_models: [MODEL_DEFAULT],
+      onboarding_completed: false,
     })
 
     if (insertError && insertError.code !== "23505") {
       console.error("Error inserting user:", insertError)
+    } else if (!insertError) {
+      // Successfully inserted new user
+      isNewUser = true
     }
   } catch (err) {
     console.error("Unexpected user insert error:", err)
   }
 
+  // Check if user needs onboarding
+  let needsOnboarding = isNewUser
+  if (!isNewUser) {
+    const { data: userData } = await supabaseAdmin
+      .from("users")
+      .select("onboarding_completed")
+      .eq("id", user.id)
+      .single()
+
+    needsOnboarding = !userData?.onboarding_completed
+  }
+
   const host = request.headers.get("host")
   const protocol = host?.includes("localhost") ? "http" : "https"
 
-  const redirectUrl = `${protocol}://${host}${next}`
+  // Redirect to onboarding if needed, otherwise to the requested page
+  const redirectPath = needsOnboarding ? "/onboarding" : next
+  const redirectUrl = `${protocol}://${host}${redirectPath}`
 
   return NextResponse.redirect(redirectUrl)
 }
