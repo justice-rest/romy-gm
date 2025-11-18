@@ -1,6 +1,7 @@
 import { SYSTEM_PROMPT_DEFAULT } from "@/lib/config"
 import { getAllModels } from "@/lib/models"
 import { getProviderForModel } from "@/lib/openproviders/provider-map"
+import { createExaSearchTool } from "@/lib/tools"
 import type { ProviderWithoutOllama } from "@/lib/user-keys"
 import { Attachment } from "@ai-sdk/ui-utils"
 import { Message as MessageAISDK, streamText, ToolSet } from "ai"
@@ -104,11 +105,20 @@ export async function POST(req: Request) {
         undefined
     }
 
+    // Create tools object - add Exa search tool alongside OpenRouter's web search plugin
+    const tools: ToolSet = {}
+
+    // Add Exa search tool if EXA_API_KEY is available
+    // This provides an additional search capability alongside OpenRouter's plugin
+    if (process.env.EXA_API_KEY) {
+      tools.exa_search = createExaSearchTool()
+    }
+
     const result = streamText({
       model: modelConfig.apiSdk(apiKey, { enableSearch }),
       system: effectiveSystemPrompt,
       messages: messages,
-      tools: {} as ToolSet,
+      tools: tools,
       maxSteps: 10,
       onError: (err: unknown) => {
         console.error("Streaming error occurred:", err)

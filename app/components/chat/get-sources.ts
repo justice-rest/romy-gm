@@ -16,11 +16,20 @@ export function getSources(parts: MessageAISDK["parts"]) {
       ) {
         const result = part.toolInvocation.result
 
+        // Handle exa_search tool results
+        if (part.toolInvocation.toolName === "exa_search") {
+          if (result?.results && Array.isArray(result.results)) {
+            return result.results
+          }
+        }
+
         if (
           part.toolInvocation.toolName === "summarizeSources" &&
           result?.result?.[0]?.citations
         ) {
-          return result.result.flatMap((item: { citations?: unknown[] }) => item.citations || [])
+          return result.result.flatMap(
+            (item: { citations?: unknown[] }) => item.citations || []
+          )
         }
 
         return Array.isArray(result) ? result.flat() : result

@@ -19,6 +19,12 @@ const nextConfig: NextConfig = withBundleAnalyzer({
         port: "",
         pathname: "/storage/v1/object/public/**",
       },
+      {
+        protocol: "https",
+        hostname: "www.google.com",
+        port: "",
+        pathname: "/s2/favicons/**",
+      },
     ],
   },
   eslint: {

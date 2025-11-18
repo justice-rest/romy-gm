@@ -271,6 +271,49 @@ function SingleToolCard({
   const renderResults = () => {
     if (!parsedResult) return "No result data available"
 
+    // Handle Exa search results specifically
+    if (
+      typeof parsedResult === "object" &&
+      parsedResult !== null &&
+      "results" in parsedResult &&
+      Array.isArray(parsedResult.results)
+    ) {
+      const { results } = parsedResult as {
+        results: Array<{
+          id?: string
+          url: string
+          title: string
+          content?: string
+        }>
+      }
+      return (
+        <div className="space-y-3">
+          {results.map((item, index) => (
+            <div
+              key={item.id || index}
+              className="border-border border-b pb-3 last:border-0 last:pb-0"
+            >
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary group flex items-center gap-1 font-medium hover:underline"
+              >
+                {item.title}
+                <Link className="h-3 w-3 opacity-70 transition-opacity group-hover:opacity-100" />
+              </a>
+              <div className="text-muted-foreground mt-1 font-mono text-xs">
+                {item.url}
+              </div>
+              {item.content && (
+                <div className="mt-1 line-clamp-3 text-sm">{item.content}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      )
+    }
+
     // Handle array of items with url, title, and snippet (like search results)
     if (Array.isArray(parsedResult) && parsedResult.length > 0) {
       // Check if items look like search results
