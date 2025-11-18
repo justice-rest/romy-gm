@@ -49,6 +49,7 @@
     "idb-keyval": "^6.2.1",
     "jsdom": "^26.0.0",
     "jspdf": "^3.0.3",
+    "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.503.0",
     "marked": "^15.0.12",
     "motion": "^12.6.3",
