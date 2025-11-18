@@ -42,7 +42,7 @@ export const openrouterModels: ModelConfig[] = [
     modelFamily: "Grok",
     baseProviderId: "xai",
     description:
-      "xAI's latest flagship model with SOTA cost-efficiency, 2M context window, and advanced reasoning capabilities.",
+      "Lightning-fast AI optimized for NGOs and nonprofits. Process donor research, grant applications, and fundraising campaigns in seconds—not hours.",
     tags: ["flagship", "fast", "vision", "reasoning", "cost-effective"],
     contextWindow: 2000000,
     inputCost: 0.2,
@@ -72,7 +72,7 @@ export const openrouterModels: ModelConfig[] = [
     modelFamily: "Grok",
     baseProviderId: "xai",
     description:
-      "xAI's most powerful model with built-in reasoning and 256K context window.",
+      "Premium AI built for nonprofits who need deep analysis fast. Ideal for comprehensive donor profiling, impact reports, and strategic planning with unmatched accuracy.",
     tags: ["flagship", "vision", "reasoning", "powerful"],
     contextWindow: 256000,
     inputCost: 3.0,
