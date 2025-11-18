@@ -3,6 +3,7 @@ import { getAllModels } from "@/lib/models"
 import { getProviderForModel } from "@/lib/openproviders/provider-map"
 import { createExaSearchTool } from "@/lib/tools"
 import type { ProviderWithoutOllama } from "@/lib/user-keys"
+import { getOnboardingContextForLLM } from "@/lib/onboarding/api"
 import { Attachment } from "@ai-sdk/ui-utils"
 import { Message as MessageAISDK, streamText, ToolSet } from "ai"
 import {
@@ -94,7 +95,20 @@ export async function POST(req: Request) {
       throw new Error(`Model ${model} not found`)
     }
 
-    const effectiveSystemPrompt = systemPrompt || SYSTEM_PROMPT_DEFAULT
+    // Fetch user's onboarding context for personalization
+    const userContext = isAuthenticated
+      ? await getOnboardingContextForLLM(userId)
+      : ""
+
+    // Append user context to system prompt if available
+    const baseSystemPrompt = systemPrompt || SYSTEM_PROMPT_DEFAULT
+    const effectiveSystemPrompt = userContext
+      ? `${baseSystemPrompt}
+
+${userContext}
+
+Use the user context above to personalize your responses and provide more relevant fundraising advice tailored to their organization and experience level.`
+      : baseSystemPrompt
 
     let apiKey: string | undefined
     if (isAuthenticated && userId) {

@@ -173,7 +173,7 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
       {/* Progress Bar */}
       <div className="bg-muted fixed left-0 right-0 top-0 z-50 h-1">
         <motion.div
-          className="bg-primary h-full"
+          className="h-full bg-blue-600"
           initial={{ width: 0 }}
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.3 }}
@@ -223,13 +223,13 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
                     onChange={(e) => updateField("first_name", e.target.value)}
                     onKeyDown={handleKeyPress}
                     autoFocus
-                    className="text-foreground border-border h-14 border-b-2 border-l-0 border-r-0 border-t-0 bg-transparent px-0 text-xl placeholder:text-muted-foreground/50 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    className="text-foreground border-border h-14 border-b-2 border-l-0 border-r-0 border-t-0 bg-transparent px-0 text-xl shadow-none placeholder:text-muted-foreground/50 focus-visible:border-blue-600 focus-visible:ring-0 focus-visible:ring-offset-0"
                   />
                 </div>
                 <Button
                   onClick={goNext}
                   disabled={!canProceed()}
-                  className="h-12 px-8 text-base"
+                  className="h-12 bg-blue-600 px-8 text-base hover:bg-blue-600/90"
                 >
                   Continue
                 </Button>
@@ -258,13 +258,13 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
                     }
                     onKeyDown={handleKeyPress}
                     autoFocus
-                    className="text-foreground border-border h-14 border-b-2 border-l-0 border-r-0 border-t-0 bg-transparent px-0 text-xl placeholder:text-muted-foreground/50 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    className="text-foreground border-border h-14 border-b-2 border-l-0 border-r-0 border-t-0 bg-transparent px-0 text-xl shadow-none placeholder:text-muted-foreground/50 focus-visible:border-blue-600 focus-visible:ring-0 focus-visible:ring-offset-0"
                   />
                 </div>
                 <Button
                   onClick={goNext}
                   disabled={!canProceed()}
-                  className="h-12 px-8 text-base"
+                  className="h-12 bg-blue-600 px-8 text-base hover:bg-blue-600/90"
                 >
                   Continue
                 </Button>
@@ -296,13 +296,13 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
                     }
                     onKeyDown={handleKeyPress}
                     autoFocus
-                    className="text-foreground border-border h-14 border-b-2 border-l-0 border-r-0 border-t-0 bg-transparent px-0 text-xl placeholder:text-muted-foreground/50 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    className="text-foreground border-border h-14 border-b-2 border-l-0 border-r-0 border-t-0 bg-transparent px-0 text-xl shadow-none placeholder:text-muted-foreground/50 focus-visible:border-blue-600 focus-visible:ring-0 focus-visible:ring-offset-0"
                   />
                 </div>
                 <Button
                   onClick={goNext}
                   disabled={!canProceed()}
-                  className="h-12 px-8 text-base"
+                  className="h-12 bg-blue-600 px-8 text-base hover:bg-blue-600/90"
                 >
                   Continue
                 </Button>
@@ -331,14 +331,14 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
                         setTimeout(goNext, 200)
                       }}
                       className={cn(
-                        "border-border hover:border-primary hover:bg-accent text-foreground flex items-center justify-between rounded-lg border-2 p-4 text-left transition-all",
+                        "border-border hover:border-blue-600 hover:bg-blue-600/10 text-foreground flex items-center justify-between rounded-lg border-2 p-4 text-left transition-all",
                         formData.nonprofit_sector === sector &&
-                          "border-primary bg-accent",
+                          "border-blue-600 bg-blue-600/10",
                       )}
                     >
                       <span className="font-medium">{sector}</span>
                       {formData.nonprofit_sector === sector && (
-                        <Check className="text-primary size-5" weight="bold" />
+                        <Check className="size-5 text-blue-600" weight="bold" />
                       )}
                     </button>
                   ))}
@@ -368,14 +368,14 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
                         setTimeout(goNext, 200)
                       }}
                       className={cn(
-                        "border-border hover:border-primary hover:bg-accent text-foreground flex items-center justify-between rounded-lg border-2 p-4 text-left transition-all",
+                        "border-border hover:border-blue-600 hover:bg-blue-600/10 text-foreground flex items-center justify-between rounded-lg border-2 p-4 text-left transition-all",
                         formData.annual_budget === range &&
-                          "border-primary bg-accent",
+                          "border-blue-600 bg-blue-600/10",
                       )}
                     >
                       <span className="font-medium">{range}</span>
                       {formData.annual_budget === range && (
-                        <Check className="text-primary size-5" weight="bold" />
+                        <Check className="size-5 text-blue-600" weight="bold" />
                       )}
                     </button>
                   ))}
@@ -405,14 +405,14 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
                         setTimeout(goNext, 200)
                       }}
                       className={cn(
-                        "border-border hover:border-primary hover:bg-accent text-foreground flex items-center justify-between rounded-lg border-2 p-4 text-left transition-all",
+                        "border-border hover:border-blue-600 hover:bg-blue-600/10 text-foreground flex items-center justify-between rounded-lg border-2 p-4 text-left transition-all",
                         formData.donor_count === range &&
-                          "border-primary bg-accent",
+                          "border-blue-600 bg-blue-600/10",
                       )}
                     >
                       <span className="font-medium">{range}</span>
                       {formData.donor_count === range && (
-                        <Check className="text-primary size-5" weight="bold" />
+                        <Check className="size-5 text-blue-600" weight="bold" />
                       )}
                     </button>
                   ))}
@@ -445,14 +445,14 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
                       setTimeout(goNext, 200)
                     }}
                     className={cn(
-                      "border-border hover:border-primary hover:bg-accent text-foreground flex flex-1 items-center justify-between rounded-lg border-2 p-6 text-left transition-all",
+                      "border-border hover:border-blue-600 hover:bg-blue-600/10 text-foreground flex flex-1 items-center justify-between rounded-lg border-2 p-6 text-left transition-all",
                       formData.fundraising_primary === true &&
-                        "border-primary bg-accent",
+                        "border-blue-600 bg-blue-600/10",
                     )}
                   >
                     <span className="text-lg font-medium">Yes</span>
                     {formData.fundraising_primary === true && (
-                      <Check className="text-primary size-6" weight="bold" />
+                      <Check className="size-6 text-blue-600" weight="bold" />
                     )}
                   </button>
                   <button
@@ -461,14 +461,14 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
                       setTimeout(goNext, 200)
                     }}
                     className={cn(
-                      "border-border hover:border-primary hover:bg-accent text-foreground flex flex-1 items-center justify-between rounded-lg border-2 p-6 text-left transition-all",
+                      "border-border hover:border-blue-600 hover:bg-blue-600/10 text-foreground flex flex-1 items-center justify-between rounded-lg border-2 p-6 text-left transition-all",
                       formData.fundraising_primary === false &&
-                        "border-primary bg-accent",
+                        "border-blue-600 bg-blue-600/10",
                     )}
                   >
                     <span className="text-lg font-medium">No</span>
                     {formData.fundraising_primary === false && (
-                      <Check className="text-primary size-6" weight="bold" />
+                      <Check className="size-6 text-blue-600" weight="bold" />
                     )}
                   </button>
                 </div>
@@ -494,14 +494,14 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
                       key={tool}
                       onClick={() => toggleTool(tool)}
                       className={cn(
-                        "border-border hover:border-primary hover:bg-accent text-foreground flex w-full items-center justify-between rounded-lg border-2 p-4 text-left transition-all",
+                        "border-border hover:border-blue-600 hover:bg-blue-600/10 text-foreground flex w-full items-center justify-between rounded-lg border-2 p-4 text-left transition-all",
                         formData.prior_tools?.includes(tool) &&
-                          "border-primary bg-accent",
+                          "border-blue-600 bg-blue-600/10",
                       )}
                     >
                       <span className="font-medium">{tool}</span>
                       {formData.prior_tools?.includes(tool) && (
-                        <Check className="text-primary size-5" weight="bold" />
+                        <Check className="size-5 text-blue-600" weight="bold" />
                       )}
                     </button>
                   ))}
@@ -546,7 +546,7 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
                 <Button
                   onClick={handleSubmit}
                   disabled={!canProceed() || isSubmitting}
-                  className="h-12 px-8 text-base"
+                  className="h-12 bg-blue-600 px-8 text-base hover:bg-blue-600/90"
                 >
                   {isSubmitting ? "Submitting..." : "Complete"}
                 </Button>
