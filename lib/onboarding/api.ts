@@ -11,6 +11,10 @@ export async function getOnboardingData(
 ): Promise<OnboardingData | null> {
   const supabase = await createClient()
 
+  if (!supabase) {
+    return null
+  }
+
   let targetUserId = userId
 
   if (!targetUserId) {

@@ -13,6 +13,12 @@ export default function OnboardingPage() {
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       const supabase = createClient()
+
+      if (!supabase) {
+        router.push("/")
+        return
+      }
+
       const {
         data: { user },
       } = await supabase.auth.getUser()
