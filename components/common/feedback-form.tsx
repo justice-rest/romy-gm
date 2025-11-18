@@ -107,7 +107,7 @@ export function FeedbackForm({ authUserId, onClose }: FeedbackFormProps) {
               Thank you for your time!
             </p>
             <p className="text-muted-foreground text-sm">
-              Your feedback makes Zola better.
+              Your feedback makes Rōmy better.
             </p>
           </motion.div>
         ) : (
