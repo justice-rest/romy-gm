@@ -4,6 +4,7 @@ import {
   MessageActions,
   MessageContent,
 } from "@/components/prompt-kit/message"
+import { ButtonDownloadPdf } from "@/components/common/button-download-pdf"
 import { useUserPreferences } from "@/lib/user-preference-store/provider"
 import { cn } from "@/lib/utils"
 import type { Message as MessageAISDK } from "@ai-sdk/react"
@@ -152,6 +153,9 @@ export function MessageAssistant({
                   <Copy className="size-4" />
                 )}
               </button>
+            </MessageAction>
+            <MessageAction tooltip="Download as PDF" side="bottom">
+              <ButtonDownloadPdf markdown={children} />
             </MessageAction>
             {isLast ? (
               <MessageAction
