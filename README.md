@@ -1,6 +1,6 @@
 # Zola
 
-[zola.chat](https://zola.chat)
+[romy-gm.vercel.aoo](https://romy-gm.vercel.aoo)
 
 **Zola** is the open-source chat interface for all your models.
 

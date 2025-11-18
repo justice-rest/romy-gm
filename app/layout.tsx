@@ -46,7 +46,7 @@ export default async function RootLayout({
         <Script
           defer
           src="https://assets.onedollarstats.com/stonks.js"
-          {...(isDev ? { "data-debug": "zola.chat" } : {})}
+          {...(isDev ? { "data-debug": "romy-gm.vercel.aoo" } : {})}
         />
       ) : null}
       <body

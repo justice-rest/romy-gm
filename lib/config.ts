@@ -14,7 +14,7 @@ export const FREE_MODELS_IDS = [
 export const MODEL_DEFAULT = "openrouter:x-ai/grok-4-fast"
 
 export const APP_NAME = "Rōmy"
-export const APP_DOMAIN = "https://zola.chat"
+export const APP_DOMAIN = "https://romy-gm.vercel.aoo"
 
 export const SYSTEM_PROMPT_DEFAULT = `You are Rōmy, an expert prospect research analyst and fundraising strategist for nonprofit organizations. You specialize in donor identification, wealth screening, and capacity analysis using publicly available information.
 

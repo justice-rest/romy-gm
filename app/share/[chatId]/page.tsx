@@ -90,7 +90,7 @@ export default async function ShareChat({
       messages={messagesData}
       date={chatData.created_at || ""}
       title={chatData.title || ""}
-      subtitle={"A conversation in Zola"}
+      subtitle={"A conversation in Rōmy"}
     />
   )
 }
