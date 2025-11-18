@@ -156,14 +156,14 @@ export function MessageUser({
       ))}
       {isEditing ? (
         <div
-          className="bg-accent relative flex w-full max-w-xl min-w-[180px] flex-col gap-2 rounded-3xl px-5 py-2.5"
+          className="bg-blue-600 text-white relative flex w-full max-w-xl min-w-[180px] flex-col gap-2 rounded-3xl px-5 py-2.5"
           style={{
             width: contentRef.current?.offsetWidth,
           }}
         >
           <textarea
             ref={textareaRef}
-            className="w-full resize-none bg-transparent outline-none"
+            className="w-full resize-none bg-transparent outline-none text-white placeholder:text-white/70"
             value={editInput}
             onChange={(e) => setEditInput(e.target.value)}
             onKeyDown={(e) => {
@@ -192,7 +192,7 @@ export function MessageUser({
         </div>
       ) : (
         <MessageContent
-          className="bg-accent prose dark:prose-invert relative max-w-[70%] rounded-3xl px-5 py-2.5"
+          className="bg-blue-600 text-white prose dark:prose-invert relative max-w-[70%] rounded-3xl px-5 py-2.5"
           markdown={true}
           ref={contentRef}
           components={{
