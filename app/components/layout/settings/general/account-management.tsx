@@ -29,7 +29,7 @@ export function AccountManagement() {
   }
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between pb-16">
       <div>
         <h3 className="text-sm font-medium">Account</h3>
         <p className="text-muted-foreground text-xs">Log out on this device</p>
