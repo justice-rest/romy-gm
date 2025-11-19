@@ -12,6 +12,7 @@ import { useUser } from "@/lib/user-store/provider"
 import { cn } from "@/lib/utils"
 import { Message as MessageType } from "@ai-sdk/react"
 import { AnimatePresence, motion } from "motion/react"
+import { useRouter } from "next/navigation"
 import { useCallback, useMemo, useState } from "react"
 import { MultiChatInput } from "./multi-chat-input"
 import { useMultiChat } from "./use-multi-chat"
@@ -42,6 +43,7 @@ export function MultiChat() {
   const { messages: persistedMessages, isLoading: messagesLoading } =
     useMessages()
   const { createNewChat } = useChats()
+  const router = useRouter()
 
   const availableModels = useMemo(() => {
     return models.map((model) => ({
@@ -255,7 +257,7 @@ export function MultiChat() {
         }
         chatIdToUse = createdChat.id
         setMultiChatId(chatIdToUse)
-        window.history.pushState(null, "", `/c/${chatIdToUse}`)
+        router.push(`/c/${chatIdToUse}`, { scroll: false })
       }
 
       const selectedChats = modelChats.filter((chat) =>

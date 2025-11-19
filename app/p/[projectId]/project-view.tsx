@@ -18,7 +18,7 @@ import { useChat } from "@ai-sdk/react"
 import { ChatCircleIcon } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
 import { AnimatePresence, motion } from "motion/react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useMemo, useState } from "react"
 
 type Project = {
@@ -40,6 +40,7 @@ export function ProjectView({ projectId }: ProjectViewProps) {
   const { createNewChat, bumpChat } = useChats()
   const { cacheAndAddMessage } = useMessages()
   const pathname = usePathname()
+  const router = useRouter()
   const {
     files,
     setFiles,
@@ -132,8 +133,8 @@ export function ProjectView({ projectId }: ProjectViewProps) {
           if (!newChat) return null
 
           setCurrentChatId(newChat.id)
-          // Redirect to the chat page as expected
-          window.history.pushState(null, "", `/c/${newChat.id}`)
+          // Redirect to the chat page as expected using Next.js router
+          router.push(`/c/${newChat.id}`, { scroll: false })
           return newChat.id
         } catch (err: unknown) {
           let errorMessage = "Something went wrong."

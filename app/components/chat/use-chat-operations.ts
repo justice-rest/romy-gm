@@ -3,6 +3,7 @@ import { checkRateLimits } from "@/lib/api"
 import type { Chats } from "@/lib/chat-store/types"
 import { REMAINING_QUERY_ALERT_THRESHOLD } from "@/lib/config"
 import { Message } from "@ai-sdk/react"
+import { useRouter } from "next/navigation"
 import { useCallback } from "react"
 
 type UseChatOperationsProps = {
@@ -35,6 +36,8 @@ export function useChatOperations({
   setHasDialogAuth,
   setMessages,
 }: UseChatOperationsProps) {
+  const router = useRouter()
+
   // Chat utilities
   const checkLimitsAndNotify = async (uid: string): Promise<boolean> => {
     try {
@@ -89,7 +92,8 @@ export function useChatOperations({
 
       if (!newChat) return null
       if (isAuthenticated) {
-        window.history.pushState(null, "", `/c/${newChat.id}`)
+        // Use Next.js router instead of pushState to avoid glitches
+        router.push(`/c/${newChat.id}`, { scroll: false })
       } else {
         localStorage.setItem("guestChatId", newChat.id)
       }
