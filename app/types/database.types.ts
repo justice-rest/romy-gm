@@ -459,7 +459,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      match_ai_memories: {
+        Args: {
+          query_embedding: number[]
+          query_user_id: string
+          match_threshold?: number
+          match_count?: number
+        }
+        Returns: {
+          id: string
+          user_id: string
+          content: string
+          metadata: Json
+          chat_id: string | null
+          created_at: string
+          updated_at: string
+          similarity: number
+        }[]
+      }
     }
     Enums: Record<string, never>
     CompositeTypes: {
