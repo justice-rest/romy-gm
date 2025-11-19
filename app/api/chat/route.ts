@@ -136,7 +136,7 @@ Always use these memory tools naturally in your conversations to build a continu
     }
 
     // Create tools object - add Exa search tool alongside OpenRouter's web search plugin
-    const tools: ToolSet = {}
+    let tools: ToolSet = {}
 
     // Add Exa search tool if EXA_API_KEY is available
     // This provides an additional search capability alongside OpenRouter's plugin
@@ -149,8 +149,8 @@ Always use these memory tools naturally in your conversations to build a continu
     if (isSupermemoryEnabled() && isAuthenticated) {
       const supermemoryTools = getSupermemoryTools(userId, chatId)
       if (supermemoryTools) {
-        // Merge Supermemory tools into the tools object
-        Object.assign(tools, supermemoryTools)
+        // Spread operator to properly merge tools
+        tools = { ...tools, ...supermemoryTools }
       }
     }
 

@@ -6,7 +6,8 @@
  * from other chats and provide more personalized responses.
  */
 
-import { supermemoryTools } from '@supermemory/tools/ai-sdk';
+import { tool } from 'ai';
+import { z } from 'zod';
 
 /**
  * Configuration for Supermemory
@@ -51,14 +52,92 @@ export function getSupermemoryTools(userId: string, chatId?: string) {
       ...(chatId ? [`chat:${chatId}`] : []),
     ];
 
-    // Initialize Supermemory tools with configuration
-    const tools = supermemoryTools(config.apiKey, {
-      // Use container tags to scope memories to the user
-      // This ensures each user's memories are isolated
-      containerTags,
-    });
+    // Create native AI SDK tools that call Supermemory API
+    return {
+      searchMemories: tool({
+        description: 'Search for relevant information from previous conversations and user memories. Use this to recall context, preferences, or past interactions.',
+        parameters: z.object({
+          query: z.string().describe('What information to search for in the user\'s memory'),
+          limit: z.number().optional().default(5).describe('Maximum number of memories to return'),
+        }),
+        execute: async ({ query, limit }) => {
+          try {
+            const response = await fetch('https://api.supermemory.ai/v1/search', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': config.apiKey,
+              },
+              body: JSON.stringify({
+                query,
+                limit,
+                containerTags,
+              }),
+            });
 
-    return tools;
+            if (!response.ok) {
+              throw new Error(`Supermemory API error: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            return {
+              success: true,
+              memories: data.results || [],
+              count: data.count || 0,
+            };
+          } catch (error) {
+            console.error('Error searching memories:', error);
+            return {
+              success: false,
+              error: error instanceof Error ? error.message : 'Unknown error',
+              memories: [],
+              count: 0,
+            };
+          }
+        },
+      }),
+
+      addMemory: tool({
+        description: 'Save important information to long-term memory. Use this when the user shares preferences, goals, experiences, or other details worth remembering.',
+        parameters: z.object({
+          content: z.string().describe('The information to remember'),
+          title: z.string().optional().describe('Optional title or summary of the memory'),
+        }),
+        execute: async ({ content, title }) => {
+          try {
+            const response = await fetch('https://api.supermemory.ai/v1/memories', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': config.apiKey,
+              },
+              body: JSON.stringify({
+                content,
+                title,
+                containerTags,
+              }),
+            });
+
+            if (!response.ok) {
+              throw new Error(`Supermemory API error: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            return {
+              success: true,
+              memoryId: data.id || data.memory?.id,
+              message: 'Memory saved successfully',
+            };
+          } catch (error) {
+            console.error('Error adding memory:', error);
+            return {
+              success: false,
+              error: error instanceof Error ? error.message : 'Unknown error',
+            };
+          }
+        },
+      }),
+    };
   } catch (error) {
     console.error('Error initializing Supermemory tools:', error);
     return null;

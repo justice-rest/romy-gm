@@ -96,17 +96,25 @@ User Message
     ↓
 Chat API Route
     ↓
-AI Model + Supermemory Tools
+AI Model + Native AI SDK Tools
     ↓
 ┌─────────────────┬──────────────────┐
 │  searchMemories │   addMemory      │
 │  (retrieve)     │   (store)        │
 └─────────────────┴──────────────────┘
          ↓                    ↓
-    Supermemory API
+    Supermemory REST API
          ↓
-    Vector Database
+    Vector Database (Supermemory)
 ```
+
+### Implementation Details
+
+This integration uses **native AI SDK tools** that make direct REST API calls to Supermemory, rather than using the `@supermemory/tools` package. This approach:
+- Avoids Zod version conflicts between dependencies
+- Provides better control over API requests and responses
+- Reduces bundle size by eliminating unnecessary dependencies
+- Ensures compatibility with your existing AI SDK version
 
 ### Memory Storage
 
@@ -122,17 +130,33 @@ The AI uses tools naturally in conversations:
 
 ```typescript
 // Example: AI searches for user preferences
-const memories = await searchMemories({
-  informationToGet: "user's fundraising experience",
-  includeFullDocs: false,
+const result = await searchMemories({
+  query: "user's fundraising experience and preferences",
   limit: 5
 })
+// Returns: { success: true, memories: [...], count: 5 }
 
 // Example: AI saves new information
 await addMemory({
-  memory: "User prefers email communication over phone calls"
+  content: "User prefers email communication over phone calls",
+  title: "Communication Preference"
 })
+// Returns: { success: true, memoryId: "mem_xyz", message: "Memory saved successfully" }
 ```
+
+### API Endpoints
+
+The tools make requests to the following Supermemory endpoints:
+
+**Search Memories:**
+- `POST https://api.supermemory.ai/v1/search`
+- Headers: `x-api-key`, `Content-Type: application/json`
+- Body: `{ query, limit, containerTags }`
+
+**Add Memory:**
+- `POST https://api.supermemory.ai/v1/memories`
+- Headers: `x-api-key`, `Content-Type: application/json`
+- Body: `{ content, title, containerTags }`
 
 ## Configuration Options
 
