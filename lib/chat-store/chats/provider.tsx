@@ -1,6 +1,7 @@
 "use client"
 
 import { toast } from "@/components/ui/toast"
+import { useUser } from "@/lib/user-store/provider"
 import { createContext, useContext, useEffect, useMemo, useState } from "react"
 import { MODEL_DEFAULT, SYSTEM_PROMPT_DEFAULT } from "../../config"
 import type { Chats } from "../types"
@@ -48,29 +49,41 @@ export function useChats() {
 }
 
 export function ChatsProvider({
-  userId,
   children,
 }: {
-  userId?: string
   children: React.ReactNode
 }) {
-  const [isLoading, setIsLoading] = useState(!!userId)
+  const { user } = useUser()
+  const userId = user?.id
+  const [isLoading, setIsLoading] = useState(false)
   const [chats, setChats] = useState<Chats[]>([])
 
   useEffect(() => {
-    if (!userId) {
-      setIsLoading(false)
-      return
-    }
-
     const load = async () => {
-      setIsLoading(true)
+      // Load cached chats first for instant display
       const cached = await getCachedChats()
-      setChats(cached)
+      if (cached && cached.length > 0) {
+        console.log("[ChatsProvider] Loaded chats from cache:", cached.length)
+        setChats(cached)
+      }
 
+      // If user is not logged in, only show cached chats
+      if (!userId) {
+        console.log("[ChatsProvider] No userId, showing cached chats only")
+        setIsLoading(false)
+        return
+      }
+
+      // Fetch fresh chats from database for authenticated users
+      setIsLoading(true)
       try {
+        console.log("[ChatsProvider] Fetching chats for user:", userId)
         const fresh = await fetchAndCacheChats(userId)
+        console.log("[ChatsProvider] Loaded chats from database:", fresh.length)
         setChats(fresh)
+      } catch (error) {
+        console.error("[ChatsProvider] Failed to fetch chats:", error)
+        // Keep cached chats on error
       } finally {
         setIsLoading(false)
       }

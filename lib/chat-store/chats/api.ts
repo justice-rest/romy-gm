@@ -11,8 +11,12 @@ import {
 
 export async function getChatsForUserInDb(userId: string): Promise<Chats[]> {
   const supabase = createClient()
-  if (!supabase) return []
+  if (!supabase) {
+    console.warn("[getChatsForUserInDb] Supabase client not available")
+    return []
+  }
 
+  console.log("[getChatsForUserInDb] Fetching chats for userId:", userId)
   const { data, error } = await supabase
     .from("chats")
     .select("*")
@@ -21,11 +25,22 @@ export async function getChatsForUserInDb(userId: string): Promise<Chats[]> {
     .order("pinned_at", { ascending: false, nullsFirst: false })
     .order("updated_at", { ascending: false })
 
-  if (!data || error) {
-    console.error("Failed to fetch chats:", error)
+  if (error) {
+    console.error("[getChatsForUserInDb] Database error:", error)
+    console.error("[getChatsForUserInDb] Error details:", {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+    })
     return []
   }
 
+  if (!data || data.length === 0) {
+    console.log("[getChatsForUserInDb] No chats found for user:", userId)
+    return []
+  }
+
+  console.log("[getChatsForUserInDb] Found", data.length, "chats for user:", userId)
   return data
 }
 
@@ -83,13 +98,18 @@ export async function createChatInDb(
 
 export async function fetchAndCacheChats(userId: string): Promise<Chats[]> {
   if (!isSupabaseEnabled) {
+    console.log("[fetchAndCacheChats] Supabase disabled, using cache only")
     return await getCachedChats()
   }
 
+  console.log("[fetchAndCacheChats] Fetching chats for userId:", userId)
   const data = await getChatsForUserInDb(userId)
 
   if (data.length > 0) {
+    console.log("[fetchAndCacheChats] Caching", data.length, "chats to IndexedDB")
     await writeToIndexedDB("chats", data)
+  } else {
+    console.log("[fetchAndCacheChats] No chats to cache")
   }
 
   return data
