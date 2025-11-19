@@ -55,7 +55,9 @@ export function useChatCore({
   // State management
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [hasDialogAuth, setHasDialogAuth] = useState(false)
-  const [enableSearch, setEnableSearch] = useState(true)
+
+  // Web search is always enabled
+  const enableSearch = true
 
   // Refs and derived state
   const hasSentFirstMessageRef = useRef(false)
@@ -459,7 +461,6 @@ export function useChatCore({
     hasDialogAuth,
     setHasDialogAuth,
     enableSearch,
-    setEnableSearch,
 
     // Actions
     submit,

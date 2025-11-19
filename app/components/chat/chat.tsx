@@ -109,7 +109,6 @@ export function Chat() {
     hasSentFirstMessageRef,
     isSubmitting,
     enableSearch,
-    setEnableSearch,
     submit,
     handleReload,
     handleInputChange,
@@ -169,8 +168,6 @@ export function Chat() {
       isUserAuthenticated: isAuthenticated,
       stop,
       status,
-      setEnableSearch,
-      enableSearch,
       quotedText,
     }),
     [
@@ -186,8 +183,6 @@ export function Chat() {
       isAuthenticated,
       stop,
       status,
-      setEnableSearch,
-      enableSearch,
       quotedText,
     ]
   )
