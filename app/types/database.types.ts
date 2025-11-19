@@ -11,6 +11,47 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_memories: {
+        Row: {
+          id: string
+          user_id: string
+          content: string
+          embedding: number[] | null
+          metadata: Json
+          chat_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          content: string
+          embedding?: number[] | null
+          metadata?: Json
+          chat_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          content?: string
+          embedding?: number[] | null
+          metadata?: Json
+          chat_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_memories_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       projects: {
         Row: {
           id: string
