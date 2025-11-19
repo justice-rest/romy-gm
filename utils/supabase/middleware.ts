@@ -48,16 +48,28 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // Redirect unauthenticated users to login page
+  // Allow access to auth routes, API routes, and static files
+  const isAuthRoute = request.nextUrl.pathname.startsWith("/auth")
+  const isApiRoute = request.nextUrl.pathname.startsWith("/api")
+  const isStaticRoute =
+    request.nextUrl.pathname.startsWith("/_next") ||
+    request.nextUrl.pathname.includes(".")
+
+  if (!user && !isAuthRoute && !isApiRoute && !isStaticRoute) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/auth"
+    const redirectResponse = NextResponse.redirect(url)
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value)
+    })
+    return redirectResponse
+  }
+
   // Optimized: Check onboarding status from JWT claims instead of database query
   // The onboarding_completed status should be stored in user metadata during onboarding
   if (user && !request.nextUrl.pathname.startsWith("/onboarding")) {
     // Skip onboarding check for auth, API, and static routes
-    const isAuthRoute = request.nextUrl.pathname.startsWith("/auth")
-    const isApiRoute = request.nextUrl.pathname.startsWith("/api")
-    const isStaticRoute =
-      request.nextUrl.pathname.startsWith("/_next") ||
-      request.nextUrl.pathname.includes(".")
-
     if (!isAuthRoute && !isApiRoute && !isStaticRoute) {
       // Check user metadata first (no DB query needed)
       const onboardingCompleted = user.user_metadata?.onboarding_completed
