@@ -15,8 +15,7 @@
 
 import { tool } from 'ai';
 import { z } from 'zod';
-import { createClient } from '@supabase/supabase-js';
-import { Database } from '@/app/types/database.types';
+import type { SupabaseClientType } from '@/app/types/api.types';
 import OpenAI from 'openai';
 
 /**
@@ -119,10 +118,11 @@ export interface MemorySearchResult {
  * Get AI Memory tools for use in AI SDK
  *
  * @param userId - User ID to scope memories to a specific user
+ * @param supabase - Authenticated Supabase client with user session
  * @param chatId - Optional chat ID for additional context
  * @returns AI Memory tools object or null if not configured
  */
-export function getAIMemoryTools(userId: string, chatId?: string) {
+export function getAIMemoryTools(userId: string, supabase: SupabaseClientType, chatId?: string) {
   const config = getAIMemoryConfig();
 
   if (!config.enabled) {
@@ -131,11 +131,6 @@ export function getAIMemoryTools(userId: string, chatId?: string) {
   }
 
   try {
-    // Initialize Supabase client
-    const supabase = createClient<Database>(
-      config.supabaseUrl!,
-      config.supabaseKey!
-    );
 
     // Create native AI SDK tools
     return {
@@ -283,7 +278,11 @@ Use this context to provide more personalized and context-aware responses.
  * Batch delete memories by IDs
  * Useful for memory management and cleanup
  */
-export async function deleteMemories(memoryIds: string[], userId: string): Promise<boolean> {
+export async function deleteMemories(
+  memoryIds: string[],
+  userId: string,
+  supabase: SupabaseClientType
+): Promise<boolean> {
   const config = getAIMemoryConfig();
 
   if (!config.enabled) {
@@ -291,11 +290,6 @@ export async function deleteMemories(memoryIds: string[], userId: string): Promi
   }
 
   try {
-    const supabase = createClient<Database>(
-      config.supabaseUrl!,
-      config.supabaseKey!
-    );
-
     const { error } = await supabase
       .from('ai_memories')
       .delete()
@@ -320,6 +314,7 @@ export async function deleteMemories(memoryIds: string[], userId: string): Promi
  */
 export async function getUserMemories(
   userId: string,
+  supabase: SupabaseClientType,
   limit: number = 50,
   offset: number = 0
 ): Promise<MemorySearchResult[]> {
@@ -330,11 +325,6 @@ export async function getUserMemories(
   }
 
   try {
-    const supabase = createClient<Database>(
-      config.supabaseUrl!,
-      config.supabaseKey!
-    );
-
     const { data, error } = await supabase
       .from('ai_memories')
       .select('*')
@@ -347,7 +337,7 @@ export async function getUserMemories(
       return [];
     }
 
-    return (data || []).map((row) => ({
+    return (data || []).map((row: any) => ({
       id: row.id,
       content: row.content,
       similarity: 1.0, // Not applicable for direct fetch

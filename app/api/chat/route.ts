@@ -147,8 +147,8 @@ Always use these memory tools naturally in your conversations to build a continu
     // Add AI Memory tools for cross-chat memory and personalization
     // This allows the AI to remember information from previous conversations
     // using Supabase + pgvector for semantic search
-    if (isAIMemoryEnabled() && isAuthenticated) {
-      const aiMemoryTools = getAIMemoryTools(userId, chatId)
+    if (isAIMemoryEnabled() && isAuthenticated && supabase) {
+      const aiMemoryTools = getAIMemoryTools(userId, supabase, chatId)
       if (aiMemoryTools) {
         // Spread operator to properly merge tools
         tools = { ...tools, ...aiMemoryTools }
