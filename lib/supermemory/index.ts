@@ -8,6 +8,7 @@
 
 import { tool } from 'ai';
 import { z } from 'zod';
+import Supermemory from 'supermemory';
 
 /**
  * Configuration for Supermemory
@@ -46,13 +47,15 @@ export function getSupermemoryTools(userId: string, chatId?: string) {
   }
 
   try {
-    // Create container tags to isolate memories per user and optionally per chat
-    const containerTags = [
-      `user:${userId}`,
-      ...(chatId ? [`chat:${chatId}`] : []),
-    ];
+    // Initialize Supermemory client
+    const client = new Supermemory({
+      apiKey: config.apiKey,
+    });
 
-    // Create native AI SDK tools that call Supermemory API
+    // Create container tag for user isolation
+    const containerTag = `user:${userId}`;
+
+    // Create native AI SDK tools using the official SDK
     return {
       searchMemories: tool({
         description: 'Search for relevant information from previous conversations and user memories. Use this to recall context, preferences, or past interactions.',
@@ -62,28 +65,22 @@ export function getSupermemoryTools(userId: string, chatId?: string) {
         }),
         execute: async ({ query, limit }) => {
           try {
-            const response = await fetch('https://api.supermemory.ai/v1/search', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': config.apiKey,
-              },
-              body: JSON.stringify({
-                query,
-                limit,
-                containerTags,
-              }),
+            const response = await client.search.memories({
+              q: query,
+              limit: limit || 5,
+              containerTag,
             });
 
-            if (!response.ok) {
-              throw new Error(`Supermemory API error: ${response.statusText}`);
-            }
-
-            const data = await response.json();
             return {
               success: true,
-              memories: data.results || [],
-              count: data.count || 0,
+              memories: response.results.map(r => ({
+                id: r.id,
+                content: r.memory,
+                similarity: r.similarity,
+                metadata: r.metadata,
+                updatedAt: r.updatedAt,
+              })),
+              count: response.total,
             };
           } catch (error) {
             console.error('Error searching memories:', error);
@@ -100,32 +97,18 @@ export function getSupermemoryTools(userId: string, chatId?: string) {
       addMemory: tool({
         description: 'Save important information to long-term memory. Use this when the user shares preferences, goals, experiences, or other details worth remembering.',
         parameters: z.object({
-          content: z.string().describe('The information to remember'),
-          title: z.string().optional().describe('Optional title or summary of the memory'),
+          content: z.string().describe('The information to remember. Can include a title/summary followed by detailed content.'),
         }),
-        execute: async ({ content, title }) => {
+        execute: async ({ content }) => {
           try {
-            const response = await fetch('https://api.supermemory.ai/v1/memories', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': config.apiKey,
-              },
-              body: JSON.stringify({
-                content,
-                title,
-                containerTags,
-              }),
+            const response = await client.memories.add({
+              content,
+              containerTag,
             });
 
-            if (!response.ok) {
-              throw new Error(`Supermemory API error: ${response.statusText}`);
-            }
-
-            const data = await response.json();
             return {
               success: true,
-              memoryId: data.id || data.memory?.id,
+              memoryId: response.id,
               message: 'Memory saved successfully',
             };
           } catch (error) {

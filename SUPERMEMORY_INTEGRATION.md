@@ -110,11 +110,11 @@ AI Model + Native AI SDK Tools
 
 ### Implementation Details
 
-This integration uses **native AI SDK tools** that make direct REST API calls to Supermemory, rather than using the `@supermemory/tools` package. This approach:
-- Avoids Zod version conflicts between dependencies
-- Provides better control over API requests and responses
-- Reduces bundle size by eliminating unnecessary dependencies
+This integration uses **native AI SDK tools** with the official **Supermemory SDK** (v3.4.0). This approach:
+- Uses the official TypeScript SDK for reliable API communication
+- Leverages proper type safety and validation
 - Ensures compatibility with your existing AI SDK version
+- Provides automatic handling of API versioning and changes
 
 ### Memory Storage
 
@@ -138,25 +138,31 @@ const result = await searchMemories({
 
 // Example: AI saves new information
 await addMemory({
-  content: "User prefers email communication over phone calls",
-  title: "Communication Preference"
+  content: "User Communication Preference: Prefers email communication over phone calls"
 })
 // Returns: { success: true, memoryId: "mem_xyz", message: "Memory saved successfully" }
 ```
 
-### API Endpoints
+### SDK Integration
 
-The tools make requests to the following Supermemory endpoints:
+The tools use the official Supermemory SDK:
 
 **Search Memories:**
-- `POST https://api.supermemory.ai/v1/search`
-- Headers: `x-api-key`, `Content-Type: application/json`
-- Body: `{ query, limit, containerTags }`
+```typescript
+await client.search.memories({
+  q: query,
+  limit: 5,
+  containerTag: 'user:userId'
+})
+```
 
 **Add Memory:**
-- `POST https://api.supermemory.ai/v1/memories`
-- Headers: `x-api-key`, `Content-Type: application/json`
-- Body: `{ content, title, containerTags }`
+```typescript
+await client.memories.add({
+  content: 'Memory content here',
+  containerTag: 'user:userId'
+})
+```
 
 ## Configuration Options
 
