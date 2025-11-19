@@ -3,11 +3,8 @@
 import { Button } from "@/components/ui/button"
 import { signInWithGoogle } from "@/lib/api"
 import { createClient } from "@/lib/supabase/client"
-import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
-import { HeaderGoBack } from "../components/header-go-back"
-
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -42,7 +39,6 @@ export default function LoginPage() {
 
   return (
     <div className="bg-background flex h-dvh w-full flex-col">
-      <HeaderGoBack href="/" />
 
       <main className="flex flex-1 flex-col items-center justify-center px-4 sm:px-6">
         <div className="w-full max-w-md space-y-8">
