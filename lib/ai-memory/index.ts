@@ -96,6 +96,7 @@ async function generateEmbedding(
     model,
     input: text,
     encoding_format: 'float',
+    dimensions: 1536, // Explicitly request 1536 dimensions to match database schema
   });
 
   return response.data[0].embedding;
