@@ -4,6 +4,7 @@ import { getProviderForModel } from "@/lib/openproviders/provider-map"
 import { createExaSearchTool } from "@/lib/tools"
 import type { ProviderWithoutOllama } from "@/lib/user-keys"
 import { getOnboardingContextForLLM } from "@/lib/onboarding/api"
+import { getSupermemoryTools, isSupermemoryEnabled } from "@/lib/supermemory"
 import { Attachment } from "@ai-sdk/ui-utils"
 import { Message as MessageAISDK, streamText, ToolSet } from "ai"
 import {
@@ -102,13 +103,28 @@ export async function POST(req: Request) {
 
     // Append user context to system prompt if available
     const baseSystemPrompt = systemPrompt || SYSTEM_PROMPT_DEFAULT
-    const effectiveSystemPrompt = userContext
+    let effectiveSystemPrompt = userContext
       ? `${baseSystemPrompt}
 
 ${userContext}
 
 Use the user context above to personalize your responses and provide more relevant fundraising advice tailored to their organization and experience level.`
       : baseSystemPrompt
+
+    // Add memory capability instructions if Supermemory is enabled
+    if (isSupermemoryEnabled() && isAuthenticated) {
+      effectiveSystemPrompt += `
+
+## Memory Capabilities
+
+You have access to long-term memory tools that allow you to:
+1. **Remember important information** - Use the addMemory tool to save key facts, preferences, or insights from conversations
+2. **Recall past conversations** - Use the searchMemories tool to retrieve relevant information from previous chats
+
+When the user shares important information (preferences, goals, organization details, past experiences, etc.), proactively save it to memory. Before answering questions, search your memory for relevant context that could help you provide more personalized responses.
+
+Always use these memory tools naturally in your conversations to build a continuous relationship with the user across all chat sessions.`
+    }
 
     let apiKey: string | undefined
     if (isAuthenticated && userId) {
@@ -126,6 +142,16 @@ Use the user context above to personalize your responses and provide more releva
     // This provides an additional search capability alongside OpenRouter's plugin
     if (process.env.EXA_API_KEY) {
       tools.exa_search = createExaSearchTool()
+    }
+
+    // Add Supermemory tools for cross-chat memory and personalization
+    // This allows the AI to remember information from previous conversations
+    if (isSupermemoryEnabled() && isAuthenticated) {
+      const supermemoryTools = getSupermemoryTools(userId, chatId)
+      if (supermemoryTools) {
+        // Merge Supermemory tools into the tools object
+        Object.assign(tools, supermemoryTools)
+      }
     }
 
     const result = streamText({
