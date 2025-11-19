@@ -57,6 +57,7 @@ interface OnboardingData {
   fundraising_primary: boolean | null
   prior_tools: string[] | null
   purpose: string | null
+  assistant_name: string | null
   additional_context: string | null
 }
 
@@ -74,6 +75,7 @@ export function OnboardingDataSection() {
     fundraising_primary: null,
     prior_tools: null,
     purpose: null,
+    assistant_name: null,
     additional_context: null,
   })
 
@@ -103,16 +105,23 @@ export function OnboardingDataSection() {
   const handleSave = async () => {
     setIsSaving(true)
     try {
+      // Trim assistant_name and set to null if empty
+      const sanitizedData = {
+        ...editedData,
+        assistant_name: editedData.assistant_name?.trim() || null,
+      }
+
       const response = await fetch("/api/onboarding", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(editedData),
+        body: JSON.stringify(sanitizedData),
       })
 
       if (response.ok) {
-        setData(editedData)
+        setData(sanitizedData)
+        setEditedData(sanitizedData)
         setIsEditing(false)
         toast.success("Onboarding data updated successfully")
       } else {
@@ -366,6 +375,27 @@ export function OnboardingDataSection() {
             ) : (
               <p className="text-foreground min-h-[80px] rounded-md border border-input bg-transparent px-3 py-2">
                 {data.purpose || "—"}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="assistant_name">Assistant Name</Label>
+            <p className="text-muted-foreground text-xs">
+              Customize what you call your AI assistant (defaults to &quot;Rōmy&quot;)
+            </p>
+            {isEditing ? (
+              <Input
+                id="assistant_name"
+                value={editedData.assistant_name || ""}
+                onChange={(e) =>
+                  setEditedData({ ...editedData, assistant_name: e.target.value })
+                }
+                placeholder="Leave blank to use 'Rōmy'"
+              />
+            ) : (
+              <p className="text-foreground rounded-md border border-input bg-transparent px-3 py-2">
+                {data.assistant_name || "Rōmy (default)"}
               </p>
             )}
           </div>
