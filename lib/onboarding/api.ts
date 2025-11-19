@@ -101,14 +101,7 @@ export function formatOnboardingContextForLLM(
     return ""
   }
 
-  let contextString = `# User Context\n${parts.join("\n")}\n`
-
-  // Add assistant name instruction if user has customized it
-  if (data.assistant_name) {
-    contextString += `\n**Important**: The user has named you "${data.assistant_name}". Use this name when referring to yourself instead of "Rōmy". For example, say "I'm ${data.assistant_name}" or "As ${data.assistant_name}, I can help you...".\n`
-  }
-
-  return contextString
+  return `# User Context\n${parts.join("\n")}\n`
 }
 
 /**

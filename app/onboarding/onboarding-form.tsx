@@ -19,7 +19,7 @@ import { CaretLeft, Check } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
 import { OnboardingFormData } from "@/app/api/onboarding/route"
 
-const TOTAL_QUESTIONS = 10
+const TOTAL_QUESTIONS = 9
 
 const NONPROFIT_SECTORS = [
   "Education",
@@ -79,7 +79,6 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
     fundraising_primary: null,
     prior_tools: null,
     purpose: null,
-    assistant_name: null,
     additional_context: null,
   })
 
@@ -107,12 +106,7 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
   const handleSubmit = async () => {
     setIsSubmitting(true)
     try {
-      // Trim assistant_name and set to null if empty
-      const sanitizedData = {
-        ...formData,
-        assistant_name: formData.assistant_name?.trim() || null,
-      }
-      await onComplete(sanitizedData)
+      await onComplete(formData)
     } catch (error) {
       console.error("Error submitting onboarding:", error)
       setIsSubmitting(false)
@@ -144,8 +138,6 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
         return formData.prior_tools !== null && formData.prior_tools.length > 0
       case 9:
         return formData.purpose && formData.purpose.trim().length > 0
-      case 10:
-        return true // Assistant name is optional
       default:
         return false
     }
@@ -537,7 +529,11 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
               >
                 <div>
                   <Label className="text-foreground mb-3 block text-2xl font-medium sm:text-3xl">
-                    What's your purpose in trying Rōmy?
+                    We aim to be different! ...&apos;Effective, affordable and
+                    FUN!&apos;
+                  </Label>
+                  <Label className="text-foreground mb-4 block text-2xl font-medium sm:text-3xl">
+                    What&apos;s your purpose in trying Rōmy?
                   </Label>
                   <Textarea
                     placeholder="Tell us what you hope to achieve..."
@@ -549,47 +545,8 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
                   />
                 </div>
                 <Button
-                  onClick={goNext}
-                  disabled={!canProceed()}
-                  className="h-12 bg-blue-600 px-8 text-base hover:bg-blue-600/90"
-                >
-                  Continue
-                </Button>
-              </motion.div>
-            )}
-
-            {/* Question 10: Assistant Name */}
-            {currentStep === 10 && (
-              <motion.div
-                key="q10"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-6"
-              >
-                <div>
-                  <Label className="text-foreground mb-3 block text-2xl font-medium sm:text-3xl">
-                    Rōmy is named after the Lagotto Romagnolo dog breed, which is specifically designed to hunt for truffles.
-                  </Label>
-                  <Label className="text-foreground mb-4 block text-xl font-medium sm:text-2xl">
-                    You are launching your own agentic truffle hound that will understand your goals, your nonprofit and your personal workflows. What do you want to name it?
-                  </Label>
-                  <p className="text-muted-foreground mb-4 text-sm">
-                    Optional - you can change the name later
-                  </p>
-                  <Input
-                    placeholder="Enter a name or press Continue to keep 'Rōmy'..."
-                    value={formData.assistant_name || ""}
-                    onChange={(e) => updateField("assistant_name", e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    autoFocus
-                    className="text-foreground border-border h-14 border-b-2 border-l-0 border-r-0 border-t-0 bg-transparent px-0 text-xl shadow-none placeholder:text-muted-foreground/50 focus-visible:border-blue-600 focus-visible:ring-0 focus-visible:ring-offset-0"
-                  />
-                </div>
-                <Button
                   onClick={handleSubmit}
-                  disabled={isSubmitting}
+                  disabled={!canProceed() || isSubmitting}
                   className="h-12 bg-blue-600 px-8 text-base hover:bg-blue-600/90"
                 >
                   {isSubmitting ? "Submitting..." : "Complete"}
