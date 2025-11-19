@@ -80,7 +80,10 @@ export async function logUserMessage({
   isAuthenticated,
   message_group_id,
 }: LogUserMessageParams): Promise<void> {
-  if (!supabase) return
+  if (!supabase) {
+    console.warn("Supabase client not available, user message not saved to database")
+    return
+  }
 
   const { error } = await supabase.from("messages").insert({
     chat_id: chatId,
@@ -92,7 +95,12 @@ export async function logUserMessage({
   })
 
   if (error) {
-    console.error("Error saving user message:", error)
+    console.error("Error saving user message to database:", error)
+    console.error("Chat ID:", chatId, "User ID:", userId)
+    // Don't throw error as this shouldn't block the chat flow
+    // The message will still be in IndexedDB cache
+  } else {
+    console.log("User message saved successfully to database")
   }
 }
 

@@ -18,7 +18,11 @@ export async function getMessagesFromDb(
   }
 
   const supabase = createClient()
-  if (!supabase) return []
+  if (!supabase) {
+    console.warn("Supabase client not available, falling back to cache")
+    const cached = await getCachedMessages(chatId)
+    return cached
+  }
 
   const { data, error } = await supabase
     .from("messages")
@@ -28,9 +32,20 @@ export async function getMessagesFromDb(
     .eq("chat_id", chatId)
     .order("created_at", { ascending: true })
 
-  if (!data || error) {
-    console.error("Failed to fetch messages:", error)
-    return []
+  if (error) {
+    console.error("Failed to fetch messages from database:", error)
+    console.warn("Falling back to cached messages")
+    const cached = await getCachedMessages(chatId)
+    return cached
+  }
+
+  if (!data || data.length === 0) {
+    console.log("No messages found in database for chat:", chatId)
+    const cached = await getCachedMessages(chatId)
+    if (cached.length > 0) {
+      console.log("Found cached messages, returning those:", cached.length)
+    }
+    return cached
   }
 
   return data.map((message) => ({

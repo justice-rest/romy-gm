@@ -77,6 +77,12 @@ export async function POST(req: Request) {
     }
 
     if (supabase && userMessage?.role === "user") {
+      console.log("[/api/chat] Saving user message to database:", {
+        chatId,
+        userId,
+        contentLength: userMessage.content.length,
+        hasAttachments: !!userMessage.experimental_attachments,
+      })
       await logUserMessage({
         supabase,
         userId,
@@ -86,6 +92,11 @@ export async function POST(req: Request) {
         model,
         isAuthenticated,
         message_group_id,
+      })
+    } else {
+      console.warn("[/api/chat] Skipping user message save:", {
+        hasSupabase: !!supabase,
+        messageRole: userMessage?.role,
       })
     }
 

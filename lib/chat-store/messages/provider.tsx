@@ -50,15 +50,37 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
 
     const load = async () => {
       setIsLoading(true)
+
+      // First load from cache for instant display
       const cached = await getCachedMessages(chatId)
-      setMessages(cached)
+      if (cached && cached.length > 0) {
+        console.log("Loaded messages from cache:", cached.length)
+        setMessages(cached)
+      }
 
       try {
+        // Then fetch from database for fresh data
         const fresh = await getMessagesFromDb(chatId)
-        setMessages(fresh)
-        cacheMessages(chatId, fresh)
+        console.log("Loaded messages from database:", fresh.length)
+
+        // Only update if we got data from database, otherwise keep cache
+        if (fresh && fresh.length > 0) {
+          setMessages(fresh)
+          await cacheMessages(chatId, fresh)
+        } else if (!cached || cached.length === 0) {
+          // No messages in database or cache
+          console.log("No messages found in database or cache for chat:", chatId)
+          setMessages([])
+        } else {
+          // Database returned no messages but cache has messages
+          // Keep cache and log warning
+          console.warn("Database returned no messages but cache has", cached.length, "messages")
+          console.warn("This might indicate a database sync issue")
+        }
       } catch (error) {
-        console.error("Failed to fetch messages:", error)
+        console.error("Failed to fetch messages from database:", error)
+        console.log("Keeping cached messages")
+        // Keep the cached messages we loaded earlier
       } finally {
         setIsLoading(false)
       }
@@ -84,10 +106,14 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
     try {
       setMessages((prev) => {
         const updated = [...prev, message]
-        writeToIndexedDB("messages", { id: chatId, messages: updated })
+        // Save to IndexedDB for offline access and quick loading
+        writeToIndexedDB("messages", { id: chatId, messages: updated }).catch((err) => {
+          console.error("Failed to write message to IndexedDB:", err)
+        })
         return updated
       })
-    } catch {
+    } catch (error) {
+      console.error("Failed to cache message:", error)
       toast({ title: "Failed to save message", status: "error" })
     }
   }
