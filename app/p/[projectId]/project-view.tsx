@@ -133,8 +133,8 @@ export function ProjectView({ projectId }: ProjectViewProps) {
           if (!newChat) return null
 
           setCurrentChatId(newChat.id)
-          // Redirect to the chat page as expected using Next.js router
-          router.push(`/c/${newChat.id}`, { scroll: false })
+          // Update URL without triggering server-side navigation
+          window.history.pushState(null, "", `/c/${newChat.id}`)
           return newChat.id
         } catch (err: unknown) {
           let errorMessage = "Something went wrong."
