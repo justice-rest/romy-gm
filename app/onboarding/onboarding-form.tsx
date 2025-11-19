@@ -19,7 +19,7 @@ import { CaretLeft, Check } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
 import { OnboardingFormData } from "@/app/api/onboarding/route"
 
-const TOTAL_QUESTIONS = 9
+const TOTAL_QUESTIONS = 10
 
 const NONPROFIT_SECTORS = [
   "Education",
@@ -79,6 +79,7 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
     fundraising_primary: null,
     prior_tools: null,
     purpose: null,
+    agent_name: null,
     additional_context: null,
   })
 
@@ -138,6 +139,8 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
         return formData.prior_tools !== null && formData.prior_tools.length > 0
       case 9:
         return formData.purpose && formData.purpose.trim().length > 0
+      case 10:
+        return formData.agent_name && formData.agent_name.trim().length > 0
       default:
         return false
     }
@@ -528,10 +531,6 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
                 className="space-y-6"
               >
                 <div>
-                  <Label className="text-foreground mb-3 block text-2xl font-medium sm:text-3xl">
-                    We aim to be different! ...&apos;Effective, affordable and
-                    FUN!&apos;
-                  </Label>
                   <Label className="text-foreground mb-4 block text-2xl font-medium sm:text-3xl">
                     What&apos;s your purpose in trying Rōmy?
                   </Label>
@@ -542,6 +541,48 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
                     autoFocus
                     rows={5}
                     className="text-foreground border-border resize-none border-2 text-lg placeholder:text-muted-foreground/50"
+                  />
+                </div>
+                <Button
+                  onClick={goNext}
+                  disabled={!canProceed()}
+                  className="h-12 bg-blue-600 px-8 text-base hover:bg-blue-600/90"
+                >
+                  Continue
+                </Button>
+              </motion.div>
+            )}
+
+            {/* Question 10: Agent Name */}
+            {currentStep === 10 && (
+              <motion.div
+                key="q10"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <div>
+                  <Label className="text-foreground mb-4 block text-2xl font-medium sm:text-3xl">
+                    Rōmy is named after the Lagotto Romagnolo dog breed, which is
+                    specifically designed to hunt for truffles.
+                  </Label>
+                  <Label className="text-foreground mb-4 block text-2xl font-medium sm:text-3xl">
+                    You are launching your own agentic truffle hound that will
+                    understand your goals, your nonprofit and your personal
+                    workflows. What do you want to name it?
+                  </Label>
+                  <p className="text-muted-foreground mb-4 text-sm">
+                    (you can change the name later)
+                  </p>
+                  <Input
+                    placeholder="Enter a name for your agent..."
+                    value={formData.agent_name || ""}
+                    onChange={(e) => updateField("agent_name", e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    autoFocus
+                    className="text-foreground border-border h-14 border-b-2 border-l-0 border-r-0 border-t-0 bg-transparent px-0 text-xl shadow-none placeholder:text-muted-foreground/50 focus-visible:border-blue-600 focus-visible:ring-0 focus-visible:ring-offset-0"
                   />
                 </div>
                 <Button

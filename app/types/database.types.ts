@@ -366,6 +366,7 @@ export type Database = {
           fundraising_primary: boolean | null
           prior_tools: string[] | null
           purpose: string | null
+          agent_name: string | null
           additional_context: string | null
           created_at: string | null
           updated_at: string | null
@@ -381,6 +382,7 @@ export type Database = {
           fundraising_primary?: boolean | null
           prior_tools?: string[] | null
           purpose?: string | null
+          agent_name?: string | null
           additional_context?: string | null
           created_at?: string | null
           updated_at?: string | null
@@ -396,6 +398,7 @@ export type Database = {
           fundraising_primary?: boolean | null
           prior_tools?: string | null
           purpose?: string | null
+          agent_name?: string | null
           additional_context?: string | null
           created_at?: string | null
           updated_at?: string | null

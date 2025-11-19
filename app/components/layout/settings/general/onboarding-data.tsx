@@ -57,6 +57,7 @@ interface OnboardingData {
   fundraising_primary: boolean | null
   prior_tools: string[] | null
   purpose: string | null
+  agent_name: string | null
   additional_context: string | null
 }
 
@@ -74,6 +75,7 @@ export function OnboardingDataSection() {
     fundraising_primary: null,
     prior_tools: null,
     purpose: null,
+    agent_name: null,
     additional_context: null,
   })
 
@@ -366,6 +368,24 @@ export function OnboardingDataSection() {
             ) : (
               <p className="text-foreground min-h-[80px] rounded-md border border-input bg-transparent px-3 py-2">
                 {data.purpose || "—"}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="agent_name">Your AI Agent Name</Label>
+            {isEditing ? (
+              <Input
+                id="agent_name"
+                value={editedData.agent_name || ""}
+                onChange={(e) =>
+                  setEditedData({ ...editedData, agent_name: e.target.value })
+                }
+                placeholder="Name for your truffle hound"
+              />
+            ) : (
+              <p className="text-foreground rounded-md border border-input bg-transparent px-3 py-2">
+                {data.agent_name || "—"}
               </p>
             )}
           </div>
