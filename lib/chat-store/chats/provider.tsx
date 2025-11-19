@@ -54,11 +54,14 @@ export function ChatsProvider({
   userId?: string
   children: React.ReactNode
 }) {
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(!!userId)
   const [chats, setChats] = useState<Chats[]>([])
 
   useEffect(() => {
-    if (!userId) return
+    if (!userId) {
+      setIsLoading(false)
+      return
+    }
 
     const load = async () => {
       setIsLoading(true)

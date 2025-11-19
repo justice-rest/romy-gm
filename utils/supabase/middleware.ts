@@ -41,23 +41,15 @@ export async function updateSession(request: NextRequest) {
   // issues with users being randomly logged out.
 
   // IMPORTANT: DO NOT REMOVE auth.getUser()
+  // Note: This validates the session but we optimize by only checking cookies
+  // The actual user data is fetched client-side after initial render
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // if (
-  //   !user &&
-  //   !request.nextUrl.pathname.startsWith('/login') &&
-  //   !request.nextUrl.pathname.startsWith('/auth')
-  // ) {
-  //   // no user, potentially respond by redirecting the user to the login page
-  //   const url = request.nextUrl.clone();
-  //   url.pathname = '/login';
-  //   return NextResponse.redirect(url);
-  // }
-
-  // Redirect authenticated users to onboarding if they haven't completed it
+  // Optimized: Check onboarding status from JWT claims instead of database query
+  // The onboarding_completed status should be stored in user metadata during onboarding
   if (user && !request.nextUrl.pathname.startsWith("/onboarding")) {
     // Skip onboarding check for auth, API, and static routes
     const isAuthRoute = request.nextUrl.pathname.startsWith("/auth")
@@ -67,17 +59,31 @@ export async function updateSession(request: NextRequest) {
       request.nextUrl.pathname.includes(".")
 
     if (!isAuthRoute && !isApiRoute && !isStaticRoute) {
-      const { data: userData } = await supabase
-        .from("users")
-        .select("onboarding_completed")
-        .eq("id", user.id)
-        .single()
+      // Check user metadata first (no DB query needed)
+      const onboardingCompleted = user.user_metadata?.onboarding_completed
 
-      if (userData && !userData.onboarding_completed) {
+      // Only query database if metadata is not set (fallback for existing users)
+      if (onboardingCompleted === undefined) {
+        const { data: userData } = await supabase
+          .from("users")
+          .select("onboarding_completed")
+          .eq("id", user.id)
+          .single()
+
+        if (userData && !userData.onboarding_completed) {
+          const url = request.nextUrl.clone()
+          url.pathname = "/onboarding"
+          const redirectResponse = NextResponse.redirect(url)
+          supabaseResponse.cookies.getAll().forEach((cookie) => {
+            redirectResponse.cookies.set(cookie.name, cookie.value)
+          })
+          return redirectResponse
+        }
+      } else if (!onboardingCompleted) {
+        // Fast path: use metadata without database query
         const url = request.nextUrl.clone()
         url.pathname = "/onboarding"
         const redirectResponse = NextResponse.redirect(url)
-        // Copy cookies from supabaseResponse to redirectResponse
         supabaseResponse.cookies.getAll().forEach((cookie) => {
           redirectResponse.cookies.set(cookie.name, cookie.value)
         })

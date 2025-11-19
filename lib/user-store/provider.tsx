@@ -25,10 +25,32 @@ export function UserProvider({
   initialUser,
 }: {
   children: React.ReactNode
-  initialUser: UserProfile | null
+  initialUser?: UserProfile | null
 }) {
-  const [user, setUser] = useState<UserProfile | null>(initialUser)
-  const [isLoading, setIsLoading] = useState(false)
+  const [user, setUser] = useState<UserProfile | null>(initialUser ?? null)
+  const [isLoading, setIsLoading] = useState(!initialUser)
+  const [hasFetched, setHasFetched] = useState(false)
+
+  // Fetch user profile on mount if not provided (client-side)
+  useEffect(() => {
+    // Only fetch if we don't have initial user and haven't fetched yet
+    if (initialUser !== undefined || hasFetched) return
+
+    setIsLoading(true)
+    setHasFetched(true)
+
+    fetch("/api/user/profile")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((profile) => {
+        setUser(profile)
+      })
+      .catch(() => {
+        setUser(null)
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
+  }, [initialUser, hasFetched])
 
   const refreshUser = async () => {
     if (!user?.id) return

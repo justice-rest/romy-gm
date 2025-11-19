@@ -96,6 +96,18 @@ export async function POST(request: NextRequest) {
 
     if (userError) throw userError
 
+    // Update user metadata to cache onboarding status in JWT (for faster middleware checks)
+    const { error: metadataError } = await supabase.auth.updateUser({
+      data: {
+        onboarding_completed: true,
+      },
+    })
+
+    if (metadataError) {
+      console.warn("Failed to update user metadata:", metadataError)
+      // Non-critical error - don't fail the request
+    }
+
     return NextResponse.json({ success: true, data: onboardingData })
   } catch (error) {
     console.error("Error saving onboarding data:", error)

@@ -1,20 +1,20 @@
 "use client"
 
 import { API_ROUTE_CSRF } from "@/lib/routes"
-import { useQuery } from "@tanstack/react-query"
+import { useEffect } from "react"
 
 export function LayoutClient() {
-  useQuery({
-    queryKey: ["csrf-init"],
-    queryFn: async () => {
-      await fetch(API_ROUTE_CSRF)
-      return true
-    },
-    staleTime: Infinity,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    retry: false,
-  })
+  useEffect(() => {
+    // Prefetch CSRF token in the background (non-blocking)
+    // This runs after the initial render, not during it
+    const timer = setTimeout(() => {
+      fetch(API_ROUTE_CSRF).catch(() => {
+        // Silent fail - CSRF will be fetched on first mutation if this fails
+      })
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [])
 
   return null
 }

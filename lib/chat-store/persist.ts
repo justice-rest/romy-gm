@@ -47,7 +47,13 @@ function initDatabase() {
   })
 }
 
-if (isClient) {
+// Lazy initialization - only happens when first accessed
+let initStarted = false
+
+function startInitIfNeeded() {
+  if (!isClient || initStarted) return
+  initStarted = true
+
   const checkRequest = indexedDB.open(DB_NAME)
 
   checkRequest.onsuccess = () => {
@@ -155,6 +161,10 @@ export async function ensureDbReady() {
     console.warn("ensureDbReady: not client")
     return
   }
+
+  // Start initialization on first call (lazy init)
+  startInitIfNeeded()
+
   if (dbInitPromise) await dbInitPromise
   if (!storesReady) await storesReadyPromise
 }

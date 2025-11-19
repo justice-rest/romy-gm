@@ -10,7 +10,6 @@ import { ModelProvider } from "@/lib/model-store/provider"
 import { TanstackQueryProvider } from "@/lib/tanstack-query/tanstack-query-provider"
 import { UserPreferencesProvider } from "@/lib/user-preference-store/provider"
 import { UserProvider } from "@/lib/user-store/provider"
-import { getUserProfile } from "@/lib/user/api"
 import { ThemeProvider } from "next-themes"
 import Script from "next/script"
 import { LayoutClient } from "./layout-client"
@@ -31,14 +30,13 @@ export const metadata: Metadata = {
     "Rōmy helps small nonprofits find new major donors at a fraction of the cost of existing solutions.",
 }
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   const isDev = process.env.NODE_ENV === "development"
   const isOfficialDeployment = process.env.ZOLA_OFFICIAL === "true"
-  const userProfile = await getUserProfile()
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -54,14 +52,11 @@ export default async function RootLayout({
       >
         <TanstackQueryProvider>
           <LayoutClient />
-          <UserProvider initialUser={userProfile}>
+          <UserProvider>
             <ModelProvider>
-              <ChatsProvider userId={userProfile?.id}>
+              <ChatsProvider>
                 <ChatSessionProvider>
-                  <UserPreferencesProvider
-                    userId={userProfile?.id}
-                    initialPreferences={userProfile?.preferences}
-                  >
+                  <UserPreferencesProvider>
                     <TooltipProvider
                       delayDuration={200}
                       skipDelayDuration={500}

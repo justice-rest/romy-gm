@@ -1,20 +1,44 @@
 import { FREE_MODELS_IDS } from "../config"
-import { getOllamaModels, ollamaModels } from "./data/ollama"
-import { openrouterModels } from "./data/openrouter"
 import { ModelConfig } from "./types"
 
-// Static models (always available) - All models served through OpenRouter
-const STATIC_MODELS: ModelConfig[] = [
-  ...openrouterModels,
-  ...ollamaModels, // Static fallback Ollama models (local models)
-]
-
-// Dynamic models cache
+// Lazy-loaded model data to avoid bundling heavy configs at startup
+let staticModelsCache: ModelConfig[] | null = null
 let dynamicModelsCache: ModelConfig[] | null = null
 let lastFetchTime = 0
 const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
 
-// // Function to get all models including dynamically detected ones
+// Background loading promise to support synchronous getModelInfo()
+let loadingPromise: Promise<ModelConfig[]> | null = null
+
+function startBackgroundLoad(): Promise<ModelConfig[]> {
+  if (loadingPromise) return loadingPromise
+  if (staticModelsCache) return Promise.resolve(staticModelsCache)
+
+  loadingPromise = (async () => {
+    const [{ openrouterModels }, { ollamaModels }] = await Promise.all([
+      import("./data/openrouter"),
+      import("./data/ollama"),
+    ])
+    staticModelsCache = [...openrouterModels, ...ollamaModels]
+    return staticModelsCache
+  })()
+
+  return loadingPromise
+}
+
+// Start loading in background on client-side (doesn't block initial render)
+if (typeof window !== "undefined") {
+  // Defer by 50ms to allow critical render path to complete first
+  setTimeout(startBackgroundLoad, 50)
+}
+
+// Lazy load static models
+async function getStaticModels(): Promise<ModelConfig[]> {
+  if (staticModelsCache) return staticModelsCache
+  return startBackgroundLoad()
+}
+
+// Function to get all models including dynamically detected ones
 export async function getAllModels(): Promise<ModelConfig[]> {
   const now = Date.now()
 
@@ -24,11 +48,16 @@ export async function getAllModels(): Promise<ModelConfig[]> {
   }
 
   try {
+    const [staticModels, { getOllamaModels }] = await Promise.all([
+      getStaticModels(),
+      import("./data/ollama"),
+    ])
+
     // Get dynamically detected Ollama models (includes enabled check internally)
     const detectedOllamaModels = await getOllamaModels()
 
     // Combine static models (excluding static Ollama models) with detected ones
-    const staticModelsWithoutOllama = STATIC_MODELS.filter(
+    const staticModelsWithoutOllama = staticModels.filter(
       (model) => model.providerId !== "ollama"
     )
 
@@ -38,7 +67,7 @@ export async function getAllModels(): Promise<ModelConfig[]> {
     return dynamicModelsCache
   } catch (error) {
     console.warn("Failed to load dynamic models, using static models:", error)
-    return STATIC_MODELS
+    return getStaticModels()
   }
 }
 
@@ -68,7 +97,7 @@ export async function getModelsWithAccessFlags(): Promise<ModelConfig[]> {
 export async function getModelsForProvider(
   provider: string
 ): Promise<ModelConfig[]> {
-  const models = STATIC_MODELS
+  const models = await getStaticModels()
 
   const providerModels = models
     .filter((model) => model.providerId === provider)
@@ -94,19 +123,29 @@ export async function getModelsForUserProviders(
 }
 
 // Synchronous function to get model info for simple lookups
-// This uses cached data if available, otherwise falls back to static models
+// This uses cached data if available, otherwise returns undefined
 export function getModelInfo(modelId: string): ModelConfig | undefined {
-  // First check the cache if it exists
+  // First check the dynamic cache if it exists
   if (dynamicModelsCache) {
     return dynamicModelsCache.find((model) => model.id === modelId)
   }
 
-  // Fall back to static models for immediate lookup
-  return STATIC_MODELS.find((model) => model.id === modelId)
+  // Then check static cache
+  if (staticModelsCache) {
+    return staticModelsCache.find((model) => model.id === modelId)
+  }
+
+  // Model data not loaded yet - caller should use async getAllModels()
+  return undefined
 }
 
-// For backward compatibility - static models only
-export const MODELS: ModelConfig[] = STATIC_MODELS
+// For backward compatibility - returns promise now
+export async function getModels(): Promise<ModelConfig[]> {
+  return getStaticModels()
+}
+
+// Legacy export - deprecated, use getModels() instead
+export const MODELS: ModelConfig[] = []
 
 // Function to refresh the models cache
 export function refreshModelsCache(): void {
