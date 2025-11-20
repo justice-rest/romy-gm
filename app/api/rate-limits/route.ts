@@ -3,7 +3,6 @@ import { getMessageUsage } from "./api"
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const userId = searchParams.get("userId")
-  const isAuthenticated = searchParams.get("isAuthenticated") === "true"
 
   if (!userId) {
     return new Response(JSON.stringify({ error: "Missing userId" }), {
@@ -12,7 +11,7 @@ export async function GET(req: Request) {
   }
 
   try {
-    const usage = await getMessageUsage(userId, isAuthenticated)
+    const usage = await getMessageUsage(userId)
 
     if (!usage) {
       return new Response(

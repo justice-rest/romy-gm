@@ -16,7 +16,7 @@ export async function createChatInDb({
   isAuthenticated,
   projectId,
 }: CreateChatInput) {
-  const supabase = await validateUserIdentity(userId, isAuthenticated)
+  const supabase = await validateUserIdentity(userId)
   if (!supabase) {
     return {
       id: crypto.randomUUID(),
@@ -28,7 +28,7 @@ export async function createChatInDb({
     }
   }
 
-  await checkUsageByModel(supabase, userId, model, isAuthenticated)
+  await checkUsageByModel(supabase, userId, model)
 
   const insertData: {
     user_id: string

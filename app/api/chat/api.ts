@@ -17,38 +17,28 @@ export async function validateAndTrackUsage({
   model,
   isAuthenticated,
 }: ChatApiParams): Promise<SupabaseClientType | null> {
-  const supabase = await validateUserIdentity(userId, isAuthenticated)
+  const supabase = await validateUserIdentity(userId)
   if (!supabase) return null
 
-  // Check if user is authenticated
-  if (!isAuthenticated) {
-    // For unauthenticated users, only allow specific models
-    if (!NON_AUTH_ALLOWED_MODELS.includes(model)) {
+  // Check API key requirements
+  const provider = getProviderForModel(model)
+
+  if (provider !== "ollama") {
+    const userApiKey = await getUserKey(
+      userId,
+      provider as ProviderWithoutOllama
+    )
+
+    // If no API key and model is not in free list, deny access
+    if (!userApiKey && !FREE_MODELS_IDS.includes(model)) {
       throw new Error(
-        "This model requires authentication. Please sign in to access more models."
+        `This model requires an API key for ${provider}. Please add your API key in settings or use a free model.`
       )
-    }
-  } else {
-    // For authenticated users, check API key requirements
-    const provider = getProviderForModel(model)
-
-    if (provider !== "ollama") {
-      const userApiKey = await getUserKey(
-        userId,
-        provider as ProviderWithoutOllama
-      )
-
-      // If no API key and model is not in free list, deny access
-      if (!userApiKey && !FREE_MODELS_IDS.includes(model)) {
-        throw new Error(
-          `This model requires an API key for ${provider}. Please add your API key in settings or use a free model.`
-        )
-      }
     }
   }
 
   // Check usage limits for the model
-  await checkUsageByModel(supabase, userId, model, isAuthenticated)
+  await checkUsageByModel(supabase, userId, model)
 
   return supabase
 }
