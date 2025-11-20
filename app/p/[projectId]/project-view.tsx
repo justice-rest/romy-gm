@@ -334,21 +334,16 @@ export function ProjectView({ projectId }: ProjectViewProps) {
   const chatInputProps = useMemo(
     () => ({
       value: input,
-      onSuggestion: () => {},
       onValueChange: handleInputChange,
       onSend: submit,
       isSubmitting,
       files,
       onFileUpload: handleFileUpload,
       onFileRemove: handleFileRemove,
-      hasSuggestions: false,
-      onSelectModel: handleModelChange,
       selectedModel,
       isUserAuthenticated: isAuthenticated,
       stop,
       status,
-      setEnableSearch,
-      enableSearch,
     }),
     [
       input,
@@ -358,13 +353,10 @@ export function ProjectView({ projectId }: ProjectViewProps) {
       files,
       handleFileUpload,
       handleFileRemove,
-      handleModelChange,
       selectedModel,
       isAuthenticated,
       stop,
       status,
-      setEnableSearch,
-      enableSearch,
     ]
   )
 

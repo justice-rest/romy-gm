@@ -1,6 +1,5 @@
 "use client"
 
-import { ModelSelector } from "@/components/common/model-selector/base"
 import {
   PromptInput,
   PromptInputAction,
@@ -22,7 +21,6 @@ type ChatInputProps = {
   files: File[]
   onFileUpload: (files: File[]) => void
   onFileRemove: (file: File) => void
-  onSelectModel: (model: string) => void
   selectedModel: string
   isUserAuthenticated: boolean
   stop: () => void
@@ -38,7 +36,6 @@ export function ChatInput({
   files,
   onFileUpload,
   onFileRemove,
-  onSelectModel,
   selectedModel,
   isUserAuthenticated,
   stop,
@@ -166,12 +163,6 @@ export function ChatInput({
                 onFileUpload={onFileUpload}
                 isUserAuthenticated={isUserAuthenticated}
                 model={selectedModel}
-              />
-              <ModelSelector
-                selectedModelId={selectedModel}
-                setSelectedModelId={onSelectModel}
-                isUserAuthenticated={isUserAuthenticated}
-                className="rounded-full"
               />
             </div>
             <PromptInputAction
