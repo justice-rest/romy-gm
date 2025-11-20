@@ -214,19 +214,24 @@ export function useChatCore({
         }
       }
 
-      const options = {
-        body: {
-          chatId: currentChatId,
-          userId: uid,
-          model: selectedModel,
-          isAuthenticated,
-          systemPrompt: systemPrompt || SYSTEM_PROMPT_DEFAULT,
-          enableSearch,
+      await append(
+        {
+          content: input,
+          role: "user",
+          experimental_attachments:
+            attachments.length > 0 ? attachments : undefined,
         },
-        experimental_attachments: attachments || undefined,
-      }
-
-      handleSubmit(undefined, options)
+        {
+          body: {
+            chatId: currentChatId,
+            userId: uid,
+            model: selectedModel,
+            isAuthenticated,
+            systemPrompt: systemPrompt || SYSTEM_PROMPT_DEFAULT,
+            enableSearch,
+          },
+        }
+      )
       setMessages((prev) => prev.filter((msg) => msg.id !== optimisticId))
       cleanupOptimisticAttachments(optimisticMessage.experimental_attachments)
       cacheAndAddMessage(optimisticMessage)
@@ -258,12 +263,13 @@ export function useChatCore({
     isAuthenticated,
     systemPrompt,
     enableSearch,
-    handleSubmit,
+    append,
     cacheAndAddMessage,
     clearDraft,
     messages.length,
     bumpChat,
     setIsSubmitting,
+    router,
   ])
 
   const submitEdit = useCallback(
@@ -356,20 +362,6 @@ export function useChatCore({
 
         prevChatIdRef.current = currentChatId
 
-        const options = {
-          body: {
-            chatId: currentChatId,
-            userId: uid,
-            model: selectedModel,
-            isAuthenticated,
-            systemPrompt: systemPrompt || SYSTEM_PROMPT_DEFAULT,
-            enableSearch,
-            editCutoffTimestamp: cutoffIso, // Backend will delete messages from this timestamp
-          },
-          experimental_attachments:
-            target.experimental_attachments || undefined,
-        }
-
         // If this is an edit of the very first user message, update chat title
         if (editIndex === 0 && target.role === "user") {
           try {
@@ -381,8 +373,20 @@ export function useChatCore({
           {
             role: "user",
             content: newContent,
+            experimental_attachments:
+              target.experimental_attachments || undefined,
           },
-          options
+          {
+            body: {
+              chatId: currentChatId,
+              userId: uid,
+              model: selectedModel,
+              isAuthenticated,
+              systemPrompt: systemPrompt || SYSTEM_PROMPT_DEFAULT,
+              enableSearch,
+              editCutoffTimestamp: cutoffIso, // Backend will delete messages from this timestamp
+            },
+          }
         )
 
         // Remove optimistic message
