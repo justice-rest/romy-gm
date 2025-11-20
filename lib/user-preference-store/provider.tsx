@@ -1,6 +1,7 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useUser } from "@/lib/user-store/provider"
 import { createContext, ReactNode, useContext } from "react"
 import {
   convertFromApiFormat,
@@ -91,13 +92,13 @@ function saveToLocalStorage(preferences: UserPreferences) {
 
 export function UserPreferencesProvider({
   children,
-  userId,
   initialPreferences,
 }: {
   children: ReactNode
-  userId?: string
   initialPreferences?: UserPreferences
 }) {
+  const { user } = useUser()
+  const userId = user?.id
   const isAuthenticated = !!userId
   const queryClient = useQueryClient()
 
@@ -188,9 +189,10 @@ export function UserPreferencesProvider({
   const updatePreferences = mutation.mutate
 
   const setLayout = (layout: LayoutType) => {
-    if (isAuthenticated || layout === "fullscreen") {
-      updatePreferences({ layout })
-    }
+    // Allow layout changes for all users
+    // For non-authenticated users, preferences are stored in localStorage
+    console.log("[UserPreferences] Setting layout to:", layout, "isAuthenticated:", isAuthenticated)
+    updatePreferences({ layout })
   }
 
   const setShowToolInvocations = (enabled: boolean) => {
