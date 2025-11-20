@@ -36,11 +36,13 @@ export const useFileUpload = () => {
   }
 
   const createOptimisticAttachments = (files: File[]) => {
-    return files.map((file) => ({
-      name: file.name,
-      contentType: file.type,
-      url: file.type.startsWith("image/") ? URL.createObjectURL(file) : "",
-    }))
+    return files
+      .filter((file) => file.type.startsWith("image/"))
+      .map((file) => ({
+        name: file.name,
+        contentType: file.type,
+        url: URL.createObjectURL(file),
+      }))
   }
 
   const cleanupOptimisticAttachments = (attachments?: Array<{ url?: string }>) => {

@@ -71,6 +71,13 @@ export async function uploadFile(
     data: { publicUrl },
   } = supabase.storage.from("chat-attachments").getPublicUrl(filePath)
 
+  // Validate URL is properly formed
+  if (!publicUrl || !publicUrl.startsWith("http")) {
+    throw new Error(
+      `Invalid public URL from Supabase: ${publicUrl}. Check if bucket "chat-attachments" is public.`
+    )
+  }
+
   return publicUrl
 }
 

@@ -234,7 +234,6 @@ export function useChatCore({
       )
       setMessages((prev) => prev.filter((msg) => msg.id !== optimisticId))
       cleanupOptimisticAttachments(optimisticMessage.experimental_attachments)
-      cacheAndAddMessage(optimisticMessage)
       clearDraft()
 
       if (messages.length > 0) {
