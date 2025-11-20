@@ -2,17 +2,20 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useUser } from "@/lib/user-store/provider"
-import { createContext, ReactNode, useContext } from "react"
+import { useTheme } from "next-themes"
+import { createContext, ReactNode, useContext, useEffect } from "react"
 import {
   convertFromApiFormat,
   convertToApiFormat,
   defaultPreferences,
   type LayoutType,
+  type ThemeType,
   type UserPreferences,
 } from "./utils"
 
 export {
   type LayoutType,
+  type ThemeType,
   type UserPreferences,
   convertFromApiFormat,
   convertToApiFormat,
@@ -24,6 +27,7 @@ const LAYOUT_STORAGE_KEY = "preferred-layout"
 interface UserPreferencesContextType {
   preferences: UserPreferences
   setLayout: (layout: LayoutType) => void
+  setTheme: (theme: ThemeType) => void
   setShowToolInvocations: (enabled: boolean) => void
   setShowConversationPreviews: (enabled: boolean) => void
   setMultiModelEnabled: (enabled: boolean) => void
@@ -101,6 +105,7 @@ export function UserPreferencesProvider({
   const userId = user?.id
   const isAuthenticated = !!userId
   const queryClient = useQueryClient()
+  const { setTheme: setNextTheme } = useTheme()
 
   // Merge initial preferences with defaults
   const getInitialData = (): UserPreferences => {
@@ -195,6 +200,14 @@ export function UserPreferencesProvider({
     updatePreferences({ layout })
   }
 
+  const setTheme = (theme: ThemeType) => {
+    // Allow theme changes for all users
+    // For authenticated users: saves to database
+    // For non-authenticated users: saves to localStorage
+    console.log("[UserPreferences] Setting theme to:", theme, "isAuthenticated:", isAuthenticated)
+    updatePreferences({ theme })
+  }
+
   const setShowToolInvocations = (enabled: boolean) => {
     updatePreferences({ showToolInvocations: enabled })
   }
@@ -221,11 +234,20 @@ export function UserPreferencesProvider({
     return (preferences.hiddenModels || []).includes(modelId)
   }
 
+  // Sync theme from database to next-themes when preferences load
+  useEffect(() => {
+    if (preferences.theme) {
+      console.log("[UserPreferences] Syncing theme from database to next-themes:", preferences.theme)
+      setNextTheme(preferences.theme)
+    }
+  }, [preferences.theme, setNextTheme])
+
   return (
     <UserPreferencesContext.Provider
       value={{
         preferences,
         setLayout,
+        setTheme,
         setShowToolInvocations,
         setShowConversationPreviews,
         setMultiModelEnabled,

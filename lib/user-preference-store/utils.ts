@@ -1,7 +1,9 @@
 export type LayoutType = "sidebar" | "fullscreen"
+export type ThemeType = "light" | "dark" | "system"
 
 export type UserPreferences = {
   layout: LayoutType
+  theme: ThemeType
   showToolInvocations: boolean
   showConversationPreviews: boolean
   multiModelEnabled: boolean
@@ -10,6 +12,7 @@ export type UserPreferences = {
 
 export const defaultPreferences: UserPreferences = {
   layout: "fullscreen",
+  theme: "system",
   showToolInvocations: true,
   showConversationPreviews: true,
   multiModelEnabled: false,
@@ -20,6 +23,7 @@ export const defaultPreferences: UserPreferences = {
 export function convertFromApiFormat(apiData: any): UserPreferences {
   return {
     layout: apiData.layout || "fullscreen",
+    theme: apiData.theme || "system",
     showToolInvocations: apiData.show_tool_invocations ?? true,
     showConversationPreviews: apiData.show_conversation_previews ?? true,
     multiModelEnabled: apiData.multi_model_enabled ?? false,
@@ -30,6 +34,7 @@ export function convertFromApiFormat(apiData: any): UserPreferences {
 export function convertToApiFormat(preferences: Partial<UserPreferences>) {
   const apiData: any = {}
   if (preferences.layout !== undefined) apiData.layout = preferences.layout
+  if (preferences.theme !== undefined) apiData.theme = preferences.theme
   if (preferences.showToolInvocations !== undefined)
     apiData.show_tool_invocations = preferences.showToolInvocations
   if (preferences.showConversationPreviews !== undefined)
