@@ -131,8 +131,7 @@ export function UserPreferencesProvider({
       staleTime: 1000 * 60 * 5, // 5 minutes
       retry: 2,
       // Use initial data if available to avoid unnecessary API calls
-      initialData:
-        initialPreferences && isAuthenticated ? getInitialData() : undefined,
+      initialData: initialPreferences ? initialPreferences : undefined,
     })
 
   // Mutation for updating preferences

@@ -48,6 +48,10 @@ export default async function RootLayout({
     console.error("Failed to fetch user profile server-side:", error)
   }
 
+  // Extract preferences for instant theme application
+  const initialPreferences = initialUser?.preferences
+  const serverTheme = initialPreferences?.theme || "system"
+
   return (
     <html lang="en" suppressHydrationWarning>
       {isOfficialDeployment ? (
@@ -66,14 +70,14 @@ export default async function RootLayout({
             <ModelProvider>
               <ChatsProvider>
                 <ChatSessionProvider>
-                  <UserPreferencesProvider>
+                  <UserPreferencesProvider initialPreferences={initialPreferences}>
                     <TooltipProvider
                       delayDuration={200}
                       skipDelayDuration={500}
                     >
                       <ThemeProvider
                         attribute="class"
-                        defaultTheme="light"
+                        defaultTheme={serverTheme}
                         enableSystem
                         disableTransitionOnChange
                       >
