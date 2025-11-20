@@ -3,7 +3,6 @@ import {
   AUTH_DAILY_MESSAGE_LIMIT,
   DAILY_LIMIT_PRO_MODELS,
   FREE_MODELS_IDS,
-  NON_AUTH_DAILY_MESSAGE_LIMIT,
 } from "@/lib/config"
 import type { SupabaseClientType } from "@/app/types/api.types"
 
@@ -12,11 +11,10 @@ const isProModel = (modelId: string) => !isFreeModel(modelId)
 
 /**
  * Checks the user's daily usage to see if they've reached their limit.
- * Uses the `anonymous` flag from the user record to decide which daily limit applies.
+ * All authenticated users have the same daily limit.
  *
  * @param supabase - Your Supabase client.
  * @param userId - The ID of the user.
- * @param trackDaily - Whether to track the daily message count (default is true)
  * @throws UsageLimitError if the daily limit is reached, or a generic Error if checking fails.
  * @returns User data including message counts and reset date
  */
@@ -24,7 +22,7 @@ export async function checkUsage(supabase: SupabaseClientType, userId: string) {
   const { data: userData, error: userDataError } = await supabase
     .from("users")
     .select(
-      "message_count, daily_message_count, daily_reset, anonymous, premium"
+      "message_count, daily_message_count, daily_reset, premium"
     )
     .eq("id", userId)
     .maybeSingle()
@@ -36,12 +34,7 @@ export async function checkUsage(supabase: SupabaseClientType, userId: string) {
     throw new Error("User record not found for id: " + userId)
   }
 
-  // Decide which daily limit to use.
-  const isAnonymous = userData.anonymous
-  // (Assuming these are imported from your config)
-  const dailyLimit = isAnonymous
-    ? NON_AUTH_DAILY_MESSAGE_LIMIT
-    : AUTH_DAILY_MESSAGE_LIMIT
+  const dailyLimit = AUTH_DAILY_MESSAGE_LIMIT
 
   // Reset the daily counter if the day has changed (using UTC).
   const now = new Date()
@@ -208,13 +201,9 @@ export async function incrementProUsage(
 export async function checkUsageByModel(
   supabase: SupabaseClientType,
   userId: string,
-  modelId: string,
-  isAuthenticated: boolean
+  modelId: string
 ) {
   if (isProModel(modelId)) {
-    if (!isAuthenticated) {
-      throw new UsageLimitError("You must log in to use this model.")
-    }
     return await checkProUsage(supabase, userId)
   }
 
@@ -224,11 +213,9 @@ export async function checkUsageByModel(
 export async function incrementUsageByModel(
   supabase: SupabaseClientType,
   userId: string,
-  modelId: string,
-  isAuthenticated: boolean
+  modelId: string
 ) {
   if (isProModel(modelId)) {
-    if (!isAuthenticated) return
     return await incrementProUsage(supabase, userId)
   }
 

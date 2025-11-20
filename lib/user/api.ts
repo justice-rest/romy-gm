@@ -20,16 +20,7 @@ export async function getSupabaseUser() {
 
 export async function getUserProfile(): Promise<UserProfile | null> {
   if (!isSupabaseEnabled) {
-    // return fake user profile for no supabase
-    const guestId = "guest"
-    return {
-      id: guestId,
-      email: "guest@getromy.app",
-      display_name: "Guest",
-      profile_image: generateDiceBearAvatar(guestId),
-      anonymous: true,
-      preferences: defaultPreferences,
-    } as UserProfile
+    return null
   }
 
   const { supabase, user } = await getSupabaseUser()
@@ -41,8 +32,7 @@ export async function getUserProfile(): Promise<UserProfile | null> {
     .eq("id", user.id)
     .single()
 
-  // Don't load anonymous users in the user store
-  if (userProfileData?.anonymous) return null
+  if (!userProfileData) return null
 
   // Format user preferences if they exist
   const formattedPreferences = userProfileData?.user_preferences

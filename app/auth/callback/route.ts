@@ -1,8 +1,9 @@
 import { MODEL_DEFAULT } from "@/lib/config"
 import { isSupabaseEnabled } from "@/lib/supabase/config"
 import { createClient } from "@/lib/supabase/server"
-import { createGuestServerClient } from "@/lib/supabase/server-guest"
+import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 import { NextResponse } from "next/server"
+import type { Database } from "@/app/types/database.types"
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -22,9 +23,14 @@ export async function GET(request: Request) {
   }
 
   const supabase = await createClient()
-  const supabaseAdmin = await createGuestServerClient()
 
-  if (!supabase || !supabaseAdmin) {
+  // Create admin client with service role key for user creation
+  const supabaseAdmin = createSupabaseClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  if (!supabase) {
     return NextResponse.redirect(
       `${origin}/auth/error?message=${encodeURIComponent("Supabase is not enabled in this deployment.")}`
     )

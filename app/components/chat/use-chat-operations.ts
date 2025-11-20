@@ -40,11 +40,6 @@ export function useChatOperations({
     try {
       const rateData = await checkRateLimits(uid, isAuthenticated)
 
-      if (rateData.remaining === 0 && !isAuthenticated) {
-        setHasDialogAuth(true)
-        return false
-      }
-
       if (rateData.remaining === REMAINING_QUERY_ALERT_THRESHOLD) {
         toast({
           title: `Only ${rateData.remaining} quer${
@@ -73,11 +68,6 @@ export function useChatOperations({
   const ensureChatExists = async (userId: string, input: string) => {
     if (chatId) return chatId
 
-    if (!isAuthenticated) {
-      const storedGuestChatId = localStorage.getItem("guestChatId")
-      if (storedGuestChatId) return storedGuestChatId
-    }
-
     try {
       const newChat = await createNewChat(
         userId,
@@ -88,13 +78,10 @@ export function useChatOperations({
       )
 
       if (!newChat) return null
-      if (isAuthenticated) {
-        // Use pushState to update URL without triggering server-side navigation
-        // This matches the Zola repo approach and prevents redirect bouncing
-        window.history.pushState(null, "", `/c/${newChat.id}`)
-      } else {
-        localStorage.setItem("guestChatId", newChat.id)
-      }
+
+      // Use pushState to update URL without triggering server-side navigation
+      // This matches the Zola repo approach and prevents redirect bouncing
+      window.history.pushState(null, "", `/c/${newChat.id}`)
 
       return newChat.id
     } catch (err: unknown) {

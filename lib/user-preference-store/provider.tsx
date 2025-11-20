@@ -113,10 +113,6 @@ export function UserPreferencesProvider({
       return initialPreferences
     }
 
-    if (!isAuthenticated) {
-      return getLocalStoragePreferences()
-    }
-
     return defaultPreferences
   }
 
@@ -126,25 +122,14 @@ export function UserPreferencesProvider({
       queryKey: ["user-preferences", userId],
       queryFn: async () => {
         if (!isAuthenticated) {
-          return getLocalStoragePreferences()
+          return defaultPreferences
         }
 
-        try {
-          return await fetchUserPreferences()
-        } catch (error) {
-          console.error(
-            "Failed to fetch user preferences, falling back to localStorage:",
-            error
-          )
-          return getLocalStoragePreferences()
-        }
+        return await fetchUserPreferences()
       },
-      enabled: typeof window !== "undefined",
+      enabled: typeof window !== "undefined" && isAuthenticated,
       staleTime: 1000 * 60 * 5, // 5 minutes
-      retry: (failureCount, error) => {
-        // Only retry for authenticated users and network errors
-        return isAuthenticated && failureCount < 2
-      },
+      retry: 2,
       // Use initial data if available to avoid unnecessary API calls
       initialData:
         initialPreferences && isAuthenticated ? getInitialData() : undefined,
@@ -153,23 +138,11 @@ export function UserPreferencesProvider({
   // Mutation for updating preferences
   const mutation = useMutation({
     mutationFn: async (update: Partial<UserPreferences>) => {
-      const updated = { ...preferences, ...update }
-
       if (!isAuthenticated) {
-        saveToLocalStorage(updated)
-        return updated
+        return { ...preferences, ...update }
       }
 
-      try {
-        return await updateUserPreferences(update)
-      } catch (error) {
-        console.error(
-          "Failed to update user preferences in database, falling back to localStorage:",
-          error
-        )
-        saveToLocalStorage(updated)
-        return updated
-      }
+      return await updateUserPreferences(update)
     },
     onMutate: async (update) => {
       const queryKey = ["user-preferences", userId]
@@ -194,16 +167,11 @@ export function UserPreferencesProvider({
   const updatePreferences = mutation.mutate
 
   const setLayout = (layout: LayoutType) => {
-    // Allow layout changes for all users
-    // For non-authenticated users, preferences are stored in localStorage
     console.log("[UserPreferences] Setting layout to:", layout, "isAuthenticated:", isAuthenticated)
     updatePreferences({ layout })
   }
 
   const setTheme = (theme: ThemeType) => {
-    // Allow theme changes for all users
-    // For authenticated users: saves to database
-    // For non-authenticated users: saves to localStorage
     console.log("[UserPreferences] Setting theme to:", theme, "isAuthenticated:", isAuthenticated)
     updatePreferences({ theme })
   }

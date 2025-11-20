@@ -1,7 +1,6 @@
 import { syncRecentMessages } from "@/app/components/chat/syncRecentMessages"
 import { useChatDraft } from "@/app/hooks/use-chat-draft"
 import { toast } from "@/components/ui/toast"
-import { getOrCreateGuestUserId } from "@/lib/api"
 import { useChats } from "@/lib/chat-store/chats/provider"
 import { MESSAGE_MAX_LENGTH, SYSTEM_PROMPT_DEFAULT } from "@/lib/config"
 import { Attachment } from "@/lib/file-handling"
@@ -9,7 +8,7 @@ import { API_ROUTE_CHAT } from "@/lib/routes"
 import type { UserProfile } from "@/lib/user/types"
 import type { Message } from "@ai-sdk/react"
 import { useChat } from "@ai-sdk/react"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 type UseChatCoreProps = {
@@ -55,6 +54,7 @@ export function useChatCore({
   // State management
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [hasDialogAuth, setHasDialogAuth] = useState(false)
+  const router = useRouter()
 
   // Web search is always enabled
   const enableSearch = true
@@ -147,11 +147,14 @@ export function useChatCore({
   const submit = useCallback(async () => {
     setIsSubmitting(true)
 
-    const uid = await getOrCreateGuestUserId(user)
-    if (!uid) {
+    if (!user?.id) {
+      toast({ title: "Please sign in to continue", status: "error" })
       setIsSubmitting(false)
+      router.push("/auth")
       return
     }
+
+    const uid = user.id
 
     const optimisticId = `optimistic-${Date.now().toString()}`
     const optimisticAttachments =
@@ -330,12 +333,14 @@ export function useChatCore({
         } catch {}
 
         // Get user validation
-        const uid = await getOrCreateGuestUserId(user)
-        if (!uid) {
+        if (!user?.id) {
           setMessages(originalMessages)
-          toast({ title: "Please sign in and try again.", status: "error" })
+          toast({ title: "Please sign in to continue", status: "error" })
+          router.push("/auth")
           return
         }
+
+        const uid = user.id
 
         const allowed = await checkLimitsAndNotify(uid)
         if (!allowed) {
@@ -411,10 +416,13 @@ export function useChatCore({
 
   // Handle reload
   const handleReload = useCallback(async () => {
-    const uid = await getOrCreateGuestUserId(user)
-    if (!uid) {
+    if (!user?.id) {
+      toast({ title: "Please sign in to continue", status: "error" })
+      router.push("/auth")
       return
     }
+
+    const uid = user.id
 
     const options = {
       body: {
