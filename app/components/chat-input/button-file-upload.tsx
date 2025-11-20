@@ -36,7 +36,9 @@ export function ButtonFileUpload({
     return null
   }
 
-  const isFileUploadAvailable = getModelInfo(model)?.vision
+  const isFileUploadAvailable =
+    getModelInfo(model)?.vision ??
+    (model === "openrouter:x-ai/grok-4-fast" ? true : false)
 
   if (!isFileUploadAvailable) {
     return (
