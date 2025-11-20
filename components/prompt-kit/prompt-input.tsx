@@ -120,11 +120,18 @@ function PromptInputTextarea({
   }, [value, disableAutosize, textareaRef])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // If a custom onKeyDown handler is provided, use it exclusively
+    // to avoid duplicate event handling
+    if (onKeyDown) {
+      onKeyDown(e)
+      return
+    }
+
+    // Default behavior: submit on Enter (without Shift)
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
       onSubmit?.()
     }
-    onKeyDown?.(e)
   }
 
   const maxHeightStyle =
