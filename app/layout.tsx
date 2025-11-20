@@ -10,6 +10,7 @@ import { ModelProvider } from "@/lib/model-store/provider"
 import { TanstackQueryProvider } from "@/lib/tanstack-query/tanstack-query-provider"
 import { UserPreferencesProvider } from "@/lib/user-preference-store/provider"
 import { UserProvider } from "@/lib/user-store/provider"
+import { getUserProfile } from "@/lib/user/api"
 import { ThemeProvider } from "next-themes"
 import Script from "next/script"
 import { LayoutClient } from "./layout-client"
@@ -30,13 +31,22 @@ export const metadata: Metadata = {
     "Rōmy helps small nonprofits find new major donors at a fraction of the cost of existing solutions.",
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   const isDev = process.env.NODE_ENV === "development"
   const isOfficialDeployment = process.env.ZOLA_OFFICIAL === "true"
+
+  // Fetch user profile server-side to eliminate login button flash
+  let initialUser = null
+  try {
+    initialUser = await getUserProfile()
+  } catch (error) {
+    // Silently fail - UserProvider will handle client-side fetch
+    console.error("Failed to fetch user profile server-side:", error)
+  }
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -52,7 +62,7 @@ export default function RootLayout({
       >
         <TanstackQueryProvider>
           <LayoutClient />
-          <UserProvider>
+          <UserProvider initialUser={initialUser}>
             <ModelProvider>
               <ChatsProvider>
                 <ChatSessionProvider>

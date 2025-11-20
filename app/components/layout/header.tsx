@@ -17,7 +17,7 @@ import { HeaderSidebarTrigger } from "./header-sidebar-trigger"
 
 export function Header({ hasSidebar }: { hasSidebar: boolean }) {
   const isMobile = useBreakpoint(768)
-  const { user } = useUser()
+  const { user, isLoading } = useUser()
   const { preferences } = useUserPreferences()
   const isMultiModelEnabled = preferences.multiModelEnabled
 
@@ -40,7 +40,12 @@ export function Header({ hasSidebar }: { hasSidebar: boolean }) {
             </div>
           </div>
           <div />
-          {!isLoggedIn ? (
+          {isLoading ? (
+            // Show placeholder during loading to prevent flash
+            <div className="pointer-events-none flex flex-1 items-center justify-end gap-2">
+              <div className="bg-muted h-8 w-8 animate-pulse rounded-full" />
+            </div>
+          ) : !isLoggedIn ? (
             <div className="pointer-events-auto flex flex-1 items-center justify-end gap-4">
               <AppInfoTrigger
                 trigger={

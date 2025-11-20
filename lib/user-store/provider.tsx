@@ -28,12 +28,14 @@ export function UserProvider({
   initialUser?: UserProfile | null
 }) {
   const [user, setUser] = useState<UserProfile | null>(initialUser ?? null)
-  const [isLoading, setIsLoading] = useState(!initialUser)
+  // Only set loading if initialUser was not provided (undefined)
+  const [isLoading, setIsLoading] = useState(initialUser === undefined)
   const [hasFetched, setHasFetched] = useState(false)
 
-  // Fetch user profile on mount if not provided (client-side)
+  // Fetch user profile on mount if not provided (client-side fallback)
   useEffect(() => {
     // Only fetch if we don't have initial user and haven't fetched yet
+    // This is a fallback for edge cases where server-side fetch fails
     if (initialUser !== undefined || hasFetched) return
 
     setIsLoading(true)
